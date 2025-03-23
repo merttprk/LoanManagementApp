@@ -1,6 +1,6 @@
-package com.loanmanagementapp.di
+package com.loanmanagementapp.data.di
 
-import com.loanmanagementapp.data.repository.LoanRepository
+import com.loanmanagementapp.domain.repository.LoanRepository
 import com.loanmanagementapp.data.LoanService
 import com.loanmanagementapp.data.MockLoanService
 import dagger.Module

@@ -1,4 +1,4 @@
-package com.loanmanagementapp.ui.theme
+package com.loanmanagementapp.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

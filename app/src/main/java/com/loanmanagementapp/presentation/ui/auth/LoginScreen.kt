@@ -1,4 +1,4 @@
-package com.loanmanagementapp.ui.screen
+package com.loanmanagementapp.presentation.ui.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

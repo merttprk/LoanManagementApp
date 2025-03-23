@@ -1,4 +1,4 @@
-package com.loanmanagementapp.ui.theme
+package com.loanmanagementapp.theme
 
 import androidx.compose.ui.graphics.Color
 

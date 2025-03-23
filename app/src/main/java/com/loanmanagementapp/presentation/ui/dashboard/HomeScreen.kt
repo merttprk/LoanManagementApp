@@ -1,4 +1,4 @@
-package com.loanmanagementapp.ui.screen
+package com.loanmanagementapp.presentation.ui.dashboard
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.loanmanagementapp.data.Loan
-import com.loanmanagementapp.data.repository.LoanRepository
+import com.loanmanagementapp.domain.repository.LoanRepository
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

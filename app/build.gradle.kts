@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt") // Kapt'ı doğrudan buraya ekledik
-    alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -80,14 +81,11 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 
     // Hilt Dependency Injection
-    implementation(libs.hilt.android.v250)
-    kapt(libs.hilt.compiler.v250)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Coroutine support
     implementation(libs.kotlinx.coroutines.android)
 }
 
-hilt {
-    enableAggregatingTask = false
-}

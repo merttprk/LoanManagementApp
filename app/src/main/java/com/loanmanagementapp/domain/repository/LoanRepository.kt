@@ -1,4 +1,4 @@
-package com.loanmanagementapp.data.repository
+package com.loanmanagementapp.domain.repository
 import android.content.Context
 import com.loanmanagementapp.data.Loan
 import com.loanmanagementapp.data.LoanService
