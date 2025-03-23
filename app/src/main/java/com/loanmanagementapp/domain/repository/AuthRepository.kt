@@ -2,6 +2,7 @@ package com.loanmanagementapp.domain.repository
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.loanmanagementapp.data.remote.model.User
+import com.loanmanagementapp.presentation.state.Result
 
 interface AuthRepository {
     suspend fun login(email: String, password: String): Result<User>

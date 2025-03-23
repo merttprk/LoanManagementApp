@@ -1,9 +1,10 @@
 package com.loanmanagementapp.presentation.state
 
 sealed class AuthState {
-    data object Initial : AuthState()
-    data object Loading : AuthState()
-    data object Success : AuthState()
-    data object PasswordResetSent : AuthState()
+    object Initial : AuthState()
+    object Loading : AuthState()
+    object Authenticated : AuthState()
+    object Unauthenticated : AuthState()
     data class Error(val message: String) : AuthState()
 }
+

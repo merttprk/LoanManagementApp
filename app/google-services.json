@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "280085505226",
+    "project_id": "loanmanagement34",
+    "storage_bucket": "loanmanagement34.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:280085505226:android:09452fedfafa41cd738033",
+        "android_client_info": {
+          "package_name": "com.loanmanagementapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXsqp0oOWKMDgOrFSlxeHvLHTM3axJZmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

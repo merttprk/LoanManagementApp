@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.loanmanagementapp" />
+                  <option name="mobileSdkAppId" value="1:280085505226:android:09452fedfafa41cd738033" />
+                  <option name="projectId" value="loanmanagement34" />
+                  <option name="projectNumber" value="280085505226" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

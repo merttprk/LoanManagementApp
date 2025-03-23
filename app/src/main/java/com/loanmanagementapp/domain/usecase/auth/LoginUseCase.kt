@@ -4,6 +4,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.loanmanagementapp.data.remote.model.User
 import com.loanmanagementapp.domain.repository.AuthRepository
 import javax.inject.Inject
+import com.loanmanagementapp.presentation.state.Result
 
 class LoginUseCase @Inject constructor(
     private val authRepository: AuthRepository
