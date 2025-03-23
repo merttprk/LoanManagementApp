@@ -26,6 +26,7 @@ firebaseBom = "33.11.0"
 googleid = "1.1.1"
 playServicesAuth = "21.3.0"
 timber = "5.0.1"
+firebaseAuthKtx = "23.2.0"
 
 
 [libraries]
@@ -58,6 +59,7 @@ firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.r
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
 
 [plugins]
