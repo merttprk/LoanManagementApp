@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.loanmanagementapp.data.LoanRepository
+import com.loanmanagementapp.data.repository.LoanRepository
 import com.loanmanagementapp.ui.screen.HomeScreen
 import com.loanmanagementapp.ui.screen.LoginScreen
 import dagger.hilt.android.AndroidEntryPoint

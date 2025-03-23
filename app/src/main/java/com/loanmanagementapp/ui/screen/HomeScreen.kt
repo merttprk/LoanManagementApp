@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.loanmanagementapp.data.Loan
-import com.loanmanagementapp.data.LoanRepository
+import com.loanmanagementapp.data.repository.LoanRepository
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
