@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.loanmanagementapp.data.Loan
+import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.domain.repository.LoanRepository
 import kotlinx.coroutines.launch
 

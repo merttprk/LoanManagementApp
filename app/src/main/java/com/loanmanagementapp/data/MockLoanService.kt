@@ -1,11 +1,13 @@
 package com.loanmanagementapp.data
 
 import android.content.Context
+import com.loanmanagementapp.data.remote.model.Loan
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.io.IOException
 import javax.inject.Inject
+import java.util.UUID
 
 class MockLoanService @Inject constructor() : LoanService {
     override suspend fun loadLoans(context: Context): List<Loan> = withContext(Dispatchers.IO) {
@@ -18,6 +20,7 @@ class MockLoanService @Inject constructor() : LoanService {
                 val jsonLoan = jsonArray.getJSONObject(i)
                 loans.add(
                     Loan(
+                        id = jsonLoan.optString("id", UUID.randomUUID().toString()),
                         name = jsonLoan.getString("name"),
                         principalAmount = jsonLoan.getDouble("principal_amount"),
                         interestRate = jsonLoan.getDouble("interest_rate"),

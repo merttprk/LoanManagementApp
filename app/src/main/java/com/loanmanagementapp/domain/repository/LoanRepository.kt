@@ -1,42 +1,33 @@
 package com.loanmanagementapp.domain.repository
 import android.content.Context
-import com.loanmanagementapp.data.Loan
-import com.loanmanagementapp.data.LoanService
-import dagger.hilt.android.scopes.ViewModelScoped
-import javax.inject.Inject
+import com.loanmanagementapp.data.remote.model.Loan
+import com.loanmanagementapp.core.type.LoanType
 
-@ViewModelScoped
-class LoanRepository @Inject constructor(private val loanService: LoanService) {
-    suspend fun updateLoans(context: Context): List<Loan> {
-        val loans = loanService.loadLoans(context).toMutableList()
-
-        for (i in loans.indices) {
-            if (loans[i].status != "paid" && loans[i].status != "default") {
-                if (loans[i].dueIn > 0) {
-                    loans[i].interestRate += 0.5 // Faiz oranı her gün artıyor
-                }
-            } else {
-                if (loans[i].principalAmount < 1000) {
-                    loans[i].status = "paid"
-                }
-            }
-
-            if (loans[i].status == "overdue" && loans[i].principalAmount > 5000) {
-                loans[i].status = "default"
-            }
-
-            loans[i].dueIn -= 1
-
-            if (loans[i].dueIn < 0) {
-                if (loans[i].status != "paid") {
-                    loans[i].status = if (loans[i].principalAmount > 0) "overdue" else "default"
-                } else {
-                    loans[i].status = "paid"
-                }
-            }
-        }
-
-        loanService.saveLoans(loans)
-        return loans
-    }
+/**
+ * Kredi işlemlerini yöneten repository arayüzü
+ * Strateji Deseni kullanarak farklı kredi türleri için faiz hesaplamalarını yapar
+ * Durum Deseni kullanarak kredi durumlarını yönetir
+ */
+interface LoanRepository {
+    /**
+     * Kredileri günceller ve faiz hesaplamalarını yapar
+     * @param context Uygulama context'i
+     * @return Güncellenmiş kredi listesi
+     */
+    suspend fun updateLoans(context: Context): List<Loan>
+    
+    /**
+     * Belirli bir kredi için faiz hesapla
+     * @param loan Faizi hesaplanacak kredi
+     * @param months Faiz hesaplaması için ay sayısı
+     * @return Hesaplanan faiz tutarı
+     */
+    fun calculateInterest(loan: Loan, months: Int): Double
+    
+    /**
+     * Belirli bir kredi türü için önerilen vade süresini al
+     * @param loanType Kredi türü
+     * @return Ay cinsinden önerilen vade süresi
+     */
+    fun getRecommendedTerm(loanType: LoanType): Int
 }
