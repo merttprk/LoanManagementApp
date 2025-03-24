@@ -39,7 +39,7 @@ fun CustomEditText(
             readOnly = readOnly,
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         if (isError && errorText.isNotEmpty()) {
             Text(
                 text = errorText,

@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.loanmanagementapp.theme.Blue40
 
 @Composable
 fun PrimaryButton(
@@ -33,9 +34,9 @@ fun PrimaryButton(
         shape = RoundedCornerShape(8.dp),
         contentPadding = contentPadding,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = Blue40,
             contentColor = Color.White,
-            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            disabledContainerColor =  Blue40.copy(alpha = 0.5f),
             disabledContentColor = Color.White.copy(alpha = 0.7f)
         )
     ) {

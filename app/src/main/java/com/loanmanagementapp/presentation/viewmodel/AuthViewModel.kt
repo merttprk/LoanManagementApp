@@ -1,11 +1,13 @@
 package com.loanmanagementapp.presentation.viewmodel
 
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.loanmanagementapp.data.remote.model.User
+import com.loanmanagementapp.domain.repository.AuthRepository
 import com.loanmanagementapp.domain.usecase.auth.GetAuthStatusUseCase
 import com.loanmanagementapp.domain.usecase.auth.LoginUseCase
 import com.loanmanagementapp.domain.usecase.auth.LogoutUseCase
@@ -23,7 +25,8 @@ class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val signupUseCase: SignupUseCase,
     private val logoutUseCase: LogoutUseCase,
-    private val getAuthStatusUseCase: GetAuthStatusUseCase
+    private val getAuthStatusUseCase: GetAuthStatusUseCase,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
@@ -68,12 +71,24 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun getGoogleSignInIntent(): Intent {
+        return authRepository.getGoogleSignInIntent()
+    }
+    
+    fun handleGoogleSignInResult(data: Intent?) {
+        val account = authRepository.getLastSignedInAccount()
+        if (account != null) {
+            loginWithGoogle(account)
+        } else {
+            _authState.value = AuthState.Error("Google sign-in failed")
+        }
+    }
+
     fun loginWithGoogle(googleAccount: GoogleSignInAccount) {
         viewModelScope.launch {
             try {
                 _authState.value = AuthState.Loading
-                val result = loginUseCase.loginWithGoogle(googleAccount)
-                when (result) {
+                when (val result = loginUseCase.loginWithGoogle(googleAccount)) {
                     is Result.Success -> {
                         _currentUser.value = result.data
                         _authState.value = AuthState.Authenticated

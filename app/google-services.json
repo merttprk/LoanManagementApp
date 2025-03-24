@@ -12,7 +12,20 @@
           "package_name": "com.loanmanagementapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "280085505226-6i81ljdgdahut5sm9evo2u045ciefv2j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loanmanagementapp",
+            "certificate_hash": "b682aa45edb3cffaa725805d00936ab30d4c3f5c"
+          }
+        },
+        {
+          "client_id": "280085505226-jrf7q1605qcq7bdbbu5sojdubhjhua6o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCXsqp0oOWKMDgOrFSlxeHvLHTM3axJZmk"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "280085505226-jrf7q1605qcq7bdbbu5sojdubhjhua6o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

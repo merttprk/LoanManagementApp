@@ -1,8 +1,5 @@
 [versions]
-agp = "8.5.0"
-hiltAndroid = "2.50"
-hiltCompiler = "2.50"
-hiltNavigationCompose = "1.2.0"
+agp = "8.8.2"
 androidxHiltNavigationCompose = "1.2.0"
 javapoet = "1.13.0"
 kotlin = "2.0.21"
@@ -27,6 +24,7 @@ googleid = "1.1.1"
 playServicesAuth = "21.3.0"
 timber = "5.0.1"
 firebaseAuthKtx = "23.2.0"
+composeMaterial3 = "1.0.0-alpha34"
 
 
 [libraries]
@@ -60,6 +58,7 @@ firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-fires
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+androidx-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeMaterial3" }
 
 
 [plugins]

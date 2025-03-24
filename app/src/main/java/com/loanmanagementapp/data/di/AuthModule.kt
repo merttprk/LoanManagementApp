@@ -8,6 +8,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.loanmanagementapp.util.GoogleSignInHelper
 import com.loanmanagementapp.data.repository.AuthRepositoryImpl
 import com.loanmanagementapp.domain.repository.AuthRepository
 import dagger.Module
@@ -43,6 +44,12 @@ object AuthModule {
         // Firebase should already be initialized by provideFirebaseAuth
         return Firebase.firestore
     }
+    
+    @Provides
+    @Singleton
+    fun provideGoogleSignInHelper(@ApplicationContext context: Context): GoogleSignInHelper {
+        return GoogleSignInHelper(context)
+    }
 
     @Provides
     @Singleton
@@ -50,6 +57,7 @@ object AuthModule {
         @ApplicationContext context: Context,
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore,
-    ): AuthRepository = AuthRepositoryImpl(context, firebaseAuth, firestore)
+        googleSignInHelper: GoogleSignInHelper
+    ): AuthRepository = AuthRepositoryImpl(context, firebaseAuth, firestore, googleSignInHelper)
 
 }

@@ -6,6 +6,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.loanmanagementapp.util.GoogleSignInHelper
 import com.loanmanagementapp.data.remote.model.User
 import com.loanmanagementapp.domain.repository.AuthRepository
 import com.loanmanagementapp.presentation.state.Result
@@ -18,7 +19,8 @@ import javax.inject.Singleton
 class AuthRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val googleSignInHelper: GoogleSignInHelper
 ) : AuthRepository {
 
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(
@@ -86,6 +88,10 @@ class AuthRepositoryImpl @Inject constructor(
             Result.Error(e)
         }
     }
+    
+    override fun getGoogleSignInIntent() = googleSignInHelper.getSignInIntent()
+    
+    override fun getLastSignedInAccount() = googleSignInHelper.getLastSignedInAccount()
 
     override suspend fun signup(username: String, email: String, password: String): Result<User> {
         return try {
@@ -142,6 +148,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun logout() {
         firebaseAuth.signOut()
+        googleSignInHelper.signOut()
         clearUserSession()
     }
     

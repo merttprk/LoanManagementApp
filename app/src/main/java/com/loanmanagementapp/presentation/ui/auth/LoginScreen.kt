@@ -1,5 +1,8 @@
 package com.loanmanagementapp.presentation.ui.auth
 
+import android.content.res.Resources
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,14 +31,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.wear.compose.material3.TextButtonDefaults
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.loanmanagementapp.R
 import com.loanmanagementapp.presentation.components.CustomEditText
 import com.loanmanagementapp.presentation.components.PrimaryButton
 import com.loanmanagementapp.presentation.state.AuthState
@@ -86,14 +96,14 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp).background(color = Color.White),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = if (isSignUp) "Create Account" else "Welcome Back",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 24.dp)
+            Image(
+                painter = painterResource( R.drawable.ic_app_logo),
+                stringResource(R.string.app_name),
+                modifier = Modifier.padding(bottom = 30.dp)
             )
             
             if (isSignUp) {
@@ -187,7 +197,7 @@ fun LoginScreen(
             OutlinedButton(
                 onClick = {
                     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken("YOUR_WEB_CLIENT_ID") // Replace with your web client ID
+                        .requestIdToken("280085505226-jrf7q1605qcq7bdbbu5sojdubhjhua6o.apps.googleusercontent.com") // Replace with your web client ID
                         .requestEmail()
                         .build()
                     
