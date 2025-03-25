@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
+import java.util.UUID
 
 /**
  * Kredi hesaplama ekranı için ViewModel
@@ -21,7 +21,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class LoanCalculationViewModel @Inject constructor(
-    private val calculateInterestUseCase: CalculateInterestUseCase,
+    private val calculateInterestUseCase: CalculateInterestUseCase
 ) : ViewModel() {
 
     // UI durumu için MutableStateFlow

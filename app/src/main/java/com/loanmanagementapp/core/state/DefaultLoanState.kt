@@ -1,7 +1,6 @@
 package com.loanmanagementapp.core.state
 
 import com.loanmanagementapp.core.calculator.LoanInterestCalculator
-import com.loanmanagementapp.core.state.statusinterface.LoanState
 import com.loanmanagementapp.core.type.LoanType
 import com.loanmanagementapp.data.remote.model.Loan
 import kotlin.random.Random

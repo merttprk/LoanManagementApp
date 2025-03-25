@@ -1,6 +1,6 @@
 package com.loanmanagementapp.core.strategy.interest
 
-import com.loanmanagementapp.core.strategy.interest.strategyinterface.InterestStrategy
+import com.loanmanagementapp.core.strategy.interest.interfaces.InterestStrategy
 import com.loanmanagementapp.data.remote.model.Loan
 
 /**

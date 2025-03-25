@@ -1,138 +1,96 @@
 package com.loanmanagementapp.data.repository
 
 import android.content.Context
-import com.google.firebase.firestore.FirebaseFirestore
+import com.loanmanagementapp.core.calculator.LoanInterestCalculator
+import com.loanmanagementapp.core.state.LoanState
 import com.loanmanagementapp.core.type.LoanType
+import com.loanmanagementapp.data.LoanService
 import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.domain.repository.LoanRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
-@Singleton
+/**
+ * LoanRepository arayüzünün uygulaması
+ * Kredi işlemlerini ve faiz hesaplamalarını yönetir
+ */
 class LoanRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val loanService: LoanService,
+    private val loanInterestCalculator: LoanInterestCalculator
 ) : LoanRepository {
 
-    companion object {
-        private const val USERS_COLLECTION = "users"
-        private const val LOANS_COLLECTION = "loans"
-        private const val LOAN_DATA_DOCUMENT = "loan_data"
-    }
+    /**
+     * Kredileri günceller ve faiz hesaplamalarını yapar
+     * @param context Uygulama context'i
+     * @return Güncellenmiş kredi listesi
+     */
+    override suspend fun updateLoans(context: Context): List<Loan> {
+        return withContext(Dispatchers.IO) {
+            val loans = loanService.loadLoans(context).toMutableList()
 
-    override suspend fun updateLoans(context: Context): List<Loan> = withContext(Dispatchers.IO) {
-        try {
-            val currentUserId = getCurrentUserId()
-            
-            val loanDataDoc = firestore.collection(USERS_COLLECTION)
-                .document(currentUserId)
-                .collection(LOANS_COLLECTION)
-                .document(LOAN_DATA_DOCUMENT)
-            
-            val snapshot = loanDataDoc.get().await()
-            
-            if (!snapshot.exists()) {
-                Timber.d("Loan data document not found for user: $currentUserId")
-                return@withContext emptyList()
+            for (i in loans.indices) {
+                val loan = loans[i]
+                
+                // Kredi durumunu belirle ve güncelleme işlemini yap
+                val loanType = getLoanTypeFromLoan(loan)
+                var loanState = LoanState.fromStatus(loan.status)
+                
+                // Krediyi güncelle
+                val updatedLoan = loanState.updateLoan(loan, loanInterestCalculator, loanType)
+                
+                // Vade durumuna göre yeni durumu belirle
+                loanState = loanState.handleDueDate(updatedLoan)
+                
+                // Yeni durumu krediye ata
+                updatedLoan.status = loanState.getStateName()
+                
+                loans[i] = updatedLoan
             }
-            
-            val loansArray = snapshot.get("loans") as? List<Map<String, Any>> ?: emptyList()
-            
-            val allLoans = ArrayList<Loan>()
-            
-            for (loanData in loansArray) {
-                try {
-                    val loan = Loan(
-                        id = (loanData["id"] as? String) ?: "",
-                        name = (loanData["name"] as? String) ?: "",
-                        principalAmount = (loanData["principalAmount"] as? Number)?.toDouble() ?: 0.0,
-                        interestRate = (loanData["interestRate"] as? Number)?.toDouble() ?: 0.0,
-                        status = (loanData["status"] as? String) ?: "",
-                        dueIn = (loanData["dueIn"] as? Number)?.toInt() ?: 0,
-                        type = try {
-                            LoanType.valueOf(((loanData["type"] as? String) ?: "PERSONAL").uppercase())
-                        } catch (e: IllegalArgumentException) {
-                            Timber.e(e, "Geçersiz kredi türü, varsayılan olarak PERSONAL kullanılıyor")
-                            LoanType.PERSONAL
-                        }
-                    )
-                    allLoans.add(loan)
-                    Timber.d("Kredi yüklendi: ${loan.id} - ${loan.name}")
-                } catch (e: Exception) {
-                    Timber.e(e, "Kredi verisi dönüştürülürken hata oluştu")
-                }
-            }
-            
-            Timber.d("Firestore'dan toplam ${allLoans.size} kredi yüklendi")
-            return@withContext allLoans
-        } catch (e: Exception) {
-            Timber.e(e, "Krediler yüklenirken hata oluştu", e)
-            return@withContext emptyList()
+
+            loanService.saveLoans(loans)
+            loans
         }
     }
-
+    
+    /**
+     * Kredi türünü belirle
+     * @param loan Kredi nesnesi
+     * @return Kredi türü
+     */
+    private fun getLoanTypeFromLoan(loan: Loan): LoanType {
+        // Kredi adına göre türünü belirle
+        return when {
+            loan.name.contains("personal", ignoreCase = true) -> LoanType.PERSONAL
+            loan.name.contains("auto", ignoreCase = true) || 
+            loan.name.contains("car", ignoreCase = true) -> LoanType.AUTO
+            loan.name.contains("mortgage", ignoreCase = true) || 
+            loan.name.contains("home", ignoreCase = true) || 
+            loan.name.contains("house", ignoreCase = true) -> LoanType.MORTGAGE
+            loan.name.contains("business", ignoreCase = true) || 
+            loan.name.contains("commercial", ignoreCase = true) -> LoanType.BUSINESS
+            else -> LoanType.PERSONAL // Varsayılan olarak kişisel kredi
+        }
+    }
+    
+    /**
+     * Belirli bir kredi için faiz hesapla
+     * @param loan Faizi hesaplanacak kredi
+     * @param months Faiz hesaplaması için ay sayısı
+     * @return Hesaplanan faiz tutarı
+     */
     override fun calculateInterest(loan: Loan, months: Int): Double {
-        return when (loan.type) {
-            LoanType.PERSONAL -> 0.125 * loan.principalAmount * months / 12  // 12.5% annual rate
-            LoanType.AUTO -> 0.075 * loan.principalAmount * months / 12      // 7.5% annual rate
-            LoanType.MORTGAGE -> 0.0525 * loan.principalAmount * months / 12 // 5.25% annual rate
-            LoanType.BUSINESS -> 0.0975 * loan.principalAmount * months / 12 // 9.75% annual rate
-            LoanType.EDUCATION -> 0.045 * loan.principalAmount * months / 12 // 4.5% annual rate
-        }
+        val loanType = getLoanTypeFromLoan(loan)
+        return loanInterestCalculator.calculateInterest(loan, months, loanType)
     }
-
+    
+    /**
+     * Belirli bir kredi türü için önerilen vade süresini al
+     * @param loanType Kredi türü
+     * @return Ay cinsinden önerilen vade süresi
+     */
     override fun getRecommendedTerm(loanType: LoanType): Int {
-        return when (loanType) {
-            LoanType.PERSONAL -> 36   // 3 years
-            LoanType.AUTO -> 60       // 5 years
-            LoanType.MORTGAGE -> 360  // 30 years
-            LoanType.BUSINESS -> 84   // 7 years
-            LoanType.EDUCATION -> 120  // 10 years
-        }
-    }
-
-    override suspend fun saveLoans(context: Context, loans: List<Loan>) = withContext(Dispatchers.IO) {
-        try {
-            val currentUserId = getCurrentUserId()
-
-            val loanDataDoc = firestore.collection(USERS_COLLECTION)
-                .document(currentUserId)
-                .collection(LOANS_COLLECTION)
-                .document(LOAN_DATA_DOCUMENT)
-            
-            val loanData = hashMapOf(
-                "loans" to loans.map { loan ->
-                    hashMapOf(
-                        "id" to loan.id,
-                        "name" to loan.name,
-                        "principalAmount" to loan.principalAmount,
-                        "interestRate" to loan.interestRate,
-                        "status" to loan.status,
-                        "dueIn" to loan.dueIn,
-                        "type" to loan.type.name
-                    )
-                }
-            )
-            
-            loanDataDoc.set(loanData).await()
-            Timber.d("${loans.size} kredi başarıyla kaydedildi")
-        } catch (e: Exception) {
-            Timber.e(e, "Krediler kaydedilirken hata oluştu")
-        }
-    }
-
-    override suspend fun getActiveLoans(context: Context): List<Loan> = withContext(Dispatchers.IO) {
-        updateLoans(context).filter { it.status.equals("active", ignoreCase = true) }
-    }
-
-    override suspend fun getPassiveLoans(context: Context): List<Loan> = withContext(Dispatchers.IO) {
-        updateLoans(context).filter { !it.status.equals("active", ignoreCase = true) }
-    }
-
-    private fun getCurrentUserId(): String {
-        return "TdzvQ2hpmIYw9EODzMKPsWErh0C3"
+        return loanInterestCalculator.getRecommendedTerm(loanType)
     }
 }

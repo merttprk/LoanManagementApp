@@ -9,19 +9,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -29,7 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,56 +36,47 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.loanmanagementapp.data.remote.model.Loan
-import com.loanmanagementapp.data.remote.model.Payment
+import com.loanmanagementapp.presentation.components.LoanDetailCard
+import com.loanmanagementapp.presentation.components.ReusableListItem
 import com.loanmanagementapp.presentation.viewmodel.LoanDetailsViewModel
 import com.loanmanagementapp.theme.Blue40
 import com.loanmanagementapp.theme.Blue80
 import com.loanmanagementapp.theme.White
 import com.loanmanagementapp.util.StatusBarUtil
-import timber.log.Timber
-import java.text.NumberFormat
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Kredi detayları ekranı
- * Belirli bir kredinin detaylarını ve ödeme geçmişini gösterir
- * @param loanId Gösterilecek kredinin ID'si
- * @param onNavigateBack Geri dönüş işlevi
- * @param viewModel Kredi detayları ViewModel'i
+ * Kredileri listeler ve seçilen kredinin detaylarını gösterir
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoanDetailsScreen(
-    loanId: String,
-    onNavigateBack: () -> Unit,
     viewModel: LoanDetailsViewModel = hiltViewModel()
 ) {
     // Status bar'ı beyaz yap ve ikonları koyu renk olarak ayarla
-    StatusBarUtil.SetStatusBarColor(color = Blue80, darkIcons = true)
+    StatusBarUtil.SetStatusBarColor(color = White, darkIcons = true)
     
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
-    val paymentState by viewModel.paymentState.collectAsState()
     
-    // Tab seçimi için state
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Kredi Detayları", "Ödeme Geçmişi")
+    // Seçilen kredi ve vade için state'ler
+    var selectedLoan by remember { mutableStateOf<Loan?>(null) }
+    var selectedTerm by remember { mutableStateOf(12) } // Varsayılan 12 ay
+    var isDropdownExpanded by remember { mutableStateOf(false) }
     
-    // Kredileri ve ödemeleri yükle
-    LaunchedEffect(key1 = loanId) {
-        viewModel.getLoanById(context, loanId)
-        viewModel.getLoanPayments(context, loanId)
-        
-        // Hata durumunu izle
-        viewModel.state.collectLatest { state ->
-            if (state.error != null) {
-                // Hata durumunda loglama veya kullanıcıya bildirim gösterme işlemleri yapılabilir
-                Timber.e("Kredi detayları yüklenirken hata: ${state.error}")
-            }
-        }
+    // Hesaplanan faiz
+    val calculatedInterest = selectedLoan?.let { 
+        viewModel.calculateInterest(it, selectedTerm) 
+    } ?: 0.0
+    
+    // Kredileri yükle
+    LaunchedEffect(key1 = true) {
+        viewModel.getLoans(context)
+    }
+    
+    // Kredi seçildiğinde viewModel'i güncelle
+    LaunchedEffect(key1 = selectedLoan) {
+        selectedLoan?.let { viewModel.selectLoan(it) }
     }
 
     Scaffold(
@@ -100,15 +87,6 @@ fun LoanDetailsScreen(
                         text = "Kredi Detayları",
                         color = White
                     ) 
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Geri",
-                            tint = White
-                        )
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Blue80
@@ -121,21 +99,6 @@ fun LoanDetailsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Tab Row
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                containerColor = Blue40,
-                contentColor = White
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(title) }
-                    )
-                }
-            }
-            
             if (state.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -155,7 +118,7 @@ fun LoanDetailsScreen(
                         modifier = Modifier.padding(16.dp)
                     )
                 }
-            } else if (state.selectedLoan == null) {
+            } else if (state.loans.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -168,78 +131,140 @@ fun LoanDetailsScreen(
                     )
                 }
             } else {
-                when (selectedTabIndex) {
-                    0 -> LoanDetailsTab(state.selectedLoan!!)
-                    1 -> PaymentHistoryTab(
-                        payments = paymentState.payments,
-                        isLoading = paymentState.isLoading,
-                        error = paymentState.error
-                    )
-                }
-            }
-        }
-    }
-}
-
-/**
- * Kredi detayları tab içeriği
- * @param loan Gösterilecek kredi
- */
-@Composable
-private fun LoanDetailsTab(loan: Loan) {
-    val currencyFormat = NumberFormat.getCurrencyInstance(Locale("tr", "TR"))
-    
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .padding(16.dp)
                 ) {
+                    // Kredi seçim dropdown'ı
+                    ExposedDropdownMenuBox(
+                        expanded = isDropdownExpanded,
+                        onExpandedChange = { isDropdownExpanded = it },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = selectedLoan?.name ?: "Kredi seçiniz",
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            label = { Text("Kredi") },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = Blue80,
+                                unfocusedBorderColor = Blue40.copy(alpha = 0.7f),
+                                focusedLabelColor = Blue80,
+                                unfocusedLabelColor = Blue40.copy(alpha = 0.7f),
+                                cursorColor = Blue80
+                            )
+                        )
+                        
+                        ExposedDropdownMenu(
+                            expanded = isDropdownExpanded,
+                            onDismissRequest = { isDropdownExpanded = false }
+                        ) {
+                            state.loans.forEach { loan ->
+                                DropdownMenuItem(
+                                    text = { Text(loan.name) },
+                                    onClick = {
+                                        selectedLoan = loan
+                                        isDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Vade seçimi
+                    val termOptions = listOf(6, 12, 24, 36, 48, 60, 120, 240, 360)
+                    var isTermDropdownExpanded by remember { mutableStateOf(false) }
+                    
+                    ExposedDropdownMenuBox(
+                        expanded = isTermDropdownExpanded,
+                        onExpandedChange = { isTermDropdownExpanded = it },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = "$selectedTerm ay",
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isTermDropdownExpanded) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            label = { Text("Vade") },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = Blue80,
+                                unfocusedBorderColor = Blue40.copy(alpha = 0.7f),
+                                focusedLabelColor = Blue80,
+                                unfocusedLabelColor = Blue40.copy(alpha = 0.7f),
+                                cursorColor = Blue80
+                            )
+                        )
+                        
+                        ExposedDropdownMenu(
+                            expanded = isTermDropdownExpanded,
+                            onDismissRequest = { isTermDropdownExpanded = false }
+                        ) {
+                            termOptions.forEach { term ->
+                                DropdownMenuItem(
+                                    text = { Text("$term ay") },
+                                    onClick = {
+                                        selectedTerm = term
+                                        isTermDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    // Kredi detay kartı
+                    if (selectedLoan != null) {
+                        LoanDetailCard(
+                            loan = selectedLoan!!,
+                            calculatedInterest = calculatedInterest,
+                            term = selectedTerm,
+                            containerColor = Blue80.copy(alpha = 0.1f),
+                            contentColor = Blue80
+                        )
+                    } else {
+                        Text(
+                            text = "Detayları görmek için bir kredi seçin",
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    // Tüm krediler başlığı
                     Text(
-                        text = loan.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
+                        text = "Tüm Krediler",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Divider()
                     
-                    Text(
-                        text = "Durum: ${getStatusText(loan.status)}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Ana Para: ${currencyFormat.format(loan.principalAmount)}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Faiz Oranı: %${loan.interestRate}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Vade: ${loan.dueIn / 30} ay",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    // Kredi listesi
+                    LazyColumn {
+                        items(state.loans) { loan ->
+                            LoanListItem(
+                                loan = loan,
+                                isSelected = selectedLoan?.id == loan.id,
+                                onClick = { selectedLoan = loan }
+                            )
+                            Divider()
+                        }
+                    }
                 }
             }
         }
@@ -247,96 +272,27 @@ private fun LoanDetailsTab(loan: Loan) {
 }
 
 /**
- * Ödeme geçmişi tab içeriği
- * @param payments Ödeme listesi
- * @param isLoading Yükleniyor durumu
- * @param error Hata mesajı
+ * Kredi listesi öğesi
+ * @param loan Gösterilecek kredi
+ * @param isSelected Seçili olup olmadığı
+ * @param onClick Tıklama işlevi
  */
 @Composable
-private fun PaymentHistoryTab(
-    payments: List<Payment>,
-    isLoading: Boolean,
-    error: String?
+fun LoanListItem(
+    loan: Loan,
+    isSelected: Boolean,
+    onClick: () -> Unit
 ) {
-    if (isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = Blue80)
-        }
-    } else if (error != null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Hata: $error",
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-    } else if (payments.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Ödeme geçmişi bulunamadı",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-    } else {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            items(payments) { payment ->
-                PaymentItem(payment)
-                Divider()
-            }
-        }
-    }
-}
-
-/**
- * Ödeme öğesi
- * @param payment Gösterilecek ödeme
- */
-@Composable
-private fun PaymentItem(payment: Payment) {
-    val currencyFormat = NumberFormat.getCurrencyInstance(Locale("tr", "TR"))
-    val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale("tr", "TR"))
+    val backgroundColor = if (isSelected) Blue80.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
     
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp)
-    ) {
-        Text(
-            text = "Ödeme Tarihi: ${dateFormat.format(Date(payment.paymentDate))}",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold
-        )
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
-        Text(
-            text = "Tutar: ${currencyFormat.format(payment.amount)}",
-            style = MaterialTheme.typography.bodyMedium
-        )
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
-        Text(
-            text = "Açıklama: ${payment.description ?: "Açıklama bulunamadı"}",
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
+    ReusableListItem(
+        primaryText = loan.name,
+        secondaryText = "Ana Para: ${loan.principalAmount} TL • Faiz: %${loan.interestRate}",
+        trailingText = getStatusText(loan.status),
+        onClick = onClick,
+        backgroundColor = backgroundColor,
+        contentColor = if (isSelected) Blue80 else MaterialTheme.colorScheme.onSurface
+    )
 }
 
 /**
@@ -344,7 +300,7 @@ private fun PaymentItem(payment: Payment) {
  * @param status Kredi durumu
  * @return Türkçe durum metni
  */
-private fun getStatusText(status: String): String {
+fun getStatusText(status: String): String {
     return when (status.lowercase()) {
         "active" -> "Aktif"
         "paid" -> "Ödenmiş"

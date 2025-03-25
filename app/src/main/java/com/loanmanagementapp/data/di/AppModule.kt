@@ -2,8 +2,8 @@ package com.loanmanagementapp.data.di
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.loanmanagementapp.core.calculator.LoanInterestCalculator
-import com.loanmanagementapp.data.repository.LoanRepositoryImpl
-import com.loanmanagementapp.data.repository.PaymentRepositoryImpl
+import com.loanmanagementapp.data.repository.FirestoreLoanRepositoryImpl
+import com.loanmanagementapp.data.repository.FirestorePaymentRepositoryImpl
 import com.loanmanagementapp.domain.repository.LoanRepository
 import com.loanmanagementapp.domain.repository.PaymentRepository
 import dagger.Module
@@ -27,12 +27,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLoanRepository(
-        firestore: FirebaseFirestore
-    ): LoanRepository = LoanRepositoryImpl(firestore)
+        firestore: FirebaseFirestore,
+        loanInterestCalculator: LoanInterestCalculator
+    ): LoanRepository = FirestoreLoanRepositoryImpl(firestore)
 
     @Provides
     @Singleton
     fun providePaymentRepository(
         firestore: FirebaseFirestore
-    ): PaymentRepository = PaymentRepositoryImpl(firestore)
+    ): PaymentRepository = FirestorePaymentRepositoryImpl(firestore)
 }

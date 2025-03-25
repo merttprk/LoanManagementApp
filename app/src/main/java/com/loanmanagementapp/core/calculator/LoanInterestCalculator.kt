@@ -2,7 +2,7 @@ package com.loanmanagementapp.core.calculator
 
 import com.loanmanagementapp.core.strategy.interest.AutoLoanInterestStrategy
 import com.loanmanagementapp.core.strategy.interest.BusinessLoanInterestStrategy
-import com.loanmanagementapp.core.strategy.interest.strategyinterface.InterestStrategy
+import com.loanmanagementapp.core.strategy.interest.interfaces.InterestStrategy
 import com.loanmanagementapp.core.strategy.interest.MortgageInterestStrategy
 import com.loanmanagementapp.core.strategy.interest.PersonalLoanStrategy
 import com.loanmanagementapp.data.remote.model.Loan
@@ -10,12 +10,20 @@ import com.loanmanagementapp.core.type.LoanType
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Strateji Deseni kullanarak kredi faizi hesaplamalarını yöneten
+ * merkezi hesaplayıcı sınıf.
+ * 
+ * Bu sınıf, mevcut kodu değiştirmeden yeni kredi türlerinin
+ * eklenebilmesine olanak tanıyarak Açık/Kapalı Prensibini (Open/Closed Principle) takip eder.
+ */
 @Singleton
 class LoanInterestCalculator @Inject constructor() {
     
     private val strategies = mutableMapOf<LoanType, InterestStrategy>()
     
     init {
+        // Varsayılan stratejileri kaydet
         registerStrategy(LoanType.PERSONAL, PersonalLoanStrategy())
         registerStrategy(LoanType.AUTO, AutoLoanInterestStrategy())
         registerStrategy(LoanType.MORTGAGE, MortgageInterestStrategy())
