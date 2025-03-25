@@ -2,15 +2,14 @@ package com.loanmanagementapp.data.repository
 
 import android.content.Context
 import com.loanmanagementapp.core.calculator.LoanInterestCalculator
-import com.loanmanagementapp.core.state.LoanState
+import com.loanmanagementapp.core.state.statusinterface.LoanState
 import com.loanmanagementapp.core.type.LoanType
 import com.loanmanagementapp.data.LoanService
 import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.domain.repository.LoanRepository
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.random.Random
+import javax.inject.Inject
 
 /**
  * LoanRepository arayüzünün uygulaması
@@ -23,62 +22,47 @@ class LoanRepositoryImpl @Inject constructor(
 
     /**
      * Kredileri günceller ve faiz hesaplamalarını yapar
-     * @param context Uygulama context'i
-     * @return Güncellenmiş kredi listesi
      */
-    override suspend fun updateLoans(context: Context): List<Loan> {
-        return withContext(Dispatchers.IO) {
+    override suspend fun updateLoans(context: Context): List<Loan> =
+        withContext(Dispatchers.IO) {
             val loans = loanService.loadLoans(context).toMutableList()
-
-            for (i in loans.indices) {
-                val loan = loans[i]
-                
-                // Kredi durumunu belirle ve güncelleme işlemini yap
-                val loanType = getLoanTypeFromLoan(loan)
-                var loanState = LoanState.fromStatus(loan.status)
-                
-                // Krediyi güncelle
-                val updatedLoan = loanState.updateLoan(loan, loanInterestCalculator, loanType)
-                
-                // Vade durumuna göre yeni durumu belirle
-                loanState = loanState.handleDueDate(updatedLoan)
-                
-                // Yeni durumu krediye ata
-                updatedLoan.status = loanState.getStateName()
-                
-                loans[i] = updatedLoan
+            loans.mapIndexed { _, loan ->
+                updateLoanState(loan)
+            }.also { updatedLoans ->
+                loanService.saveLoans(updatedLoans)
             }
+        }
 
-            loanService.saveLoans(loans)
-            loans
+    /**
+     * Kredi durumunu günceller
+     */
+    private fun updateLoanState(loan: Loan): Loan {
+        val loanType = getLoanTypeFromLoan(loan)
+        var loanState = LoanState.fromStatus(loan.status)
+
+        return loanState.updateLoan(loan, loanInterestCalculator, loanType).also { updatedLoan ->
+            loanState = loanState.handleDueDate(updatedLoan)
+            updatedLoan.status = loanState.getStateName()
         }
     }
-    
+
     /**
      * Kredi türünü belirle
-     * @param loan Kredi nesnesi
-     * @return Kredi türü
      */
-    private fun getLoanTypeFromLoan(loan: Loan): LoanType {
-        // Kredi adına göre türünü belirle
-        return when {
-            loan.name.contains("personal", ignoreCase = true) -> LoanType.PERSONAL
-            loan.name.contains("auto", ignoreCase = true) || 
-            loan.name.contains("car", ignoreCase = true) -> LoanType.AUTO
-            loan.name.contains("mortgage", ignoreCase = true) || 
-            loan.name.contains("home", ignoreCase = true) || 
-            loan.name.contains("house", ignoreCase = true) -> LoanType.MORTGAGE
-            loan.name.contains("business", ignoreCase = true) || 
-            loan.name.contains("commercial", ignoreCase = true) -> LoanType.BUSINESS
-            else -> LoanType.PERSONAL // Varsayılan olarak kişisel kredi
-        }
+    private fun getLoanTypeFromLoan(loan: Loan): LoanType = when {
+        loan.name.contains("personal", ignoreCase = true) -> LoanType.PERSONAL
+        loan.name.contains("auto", ignoreCase = true) || 
+        loan.name.contains("car", ignoreCase = true) -> LoanType.AUTO
+        loan.name.contains("mortgage", ignoreCase = true) || 
+        loan.name.contains("home", ignoreCase = true) || 
+        loan.name.contains("house", ignoreCase = true) -> LoanType.MORTGAGE
+        loan.name.contains("business", ignoreCase = true) || 
+        loan.name.contains("commercial", ignoreCase = true) -> LoanType.BUSINESS
+        else -> LoanType.PERSONAL
     }
-    
+
     /**
      * Belirli bir kredi için faiz hesapla
-     * @param loan Faizi hesaplanacak kredi
-     * @param months Faiz hesaplaması için ay sayısı
-     * @return Hesaplanan faiz tutarı
      */
     override fun calculateInterest(loan: Loan, months: Int): Double {
         val loanType = getLoanTypeFromLoan(loan)
@@ -87,10 +71,31 @@ class LoanRepositoryImpl @Inject constructor(
     
     /**
      * Belirli bir kredi türü için önerilen vade süresini al
-     * @param loanType Kredi türü
-     * @return Ay cinsinden önerilen vade süresi
      */
-    override fun getRecommendedTerm(loanType: LoanType): Int {
-        return loanInterestCalculator.getRecommendedTerm(loanType)
-    }
+    override fun getRecommendedTerm(loanType: LoanType): Int =
+        loanInterestCalculator.getRecommendedTerm(loanType)
+    
+    /**
+     * Kredi listesini kaydeder
+     */
+    override suspend fun saveLoans(context: Context, loans: List<Loan>) =
+        withContext(Dispatchers.IO) {
+            loanService.saveLoans(loans)
+        }
+
+    /**
+     * Aktif kredileri Flow olarak getirir
+     */
+    override suspend fun getActiveLoans(context: Context): List<Loan> =
+        withContext(Dispatchers.IO) {
+            updateLoans(context).filter { it.status.equals("active", ignoreCase = true) }
+        }
+
+    /**
+     * Pasif kredileri Flow olarak getirir
+     */
+    override suspend fun getPassiveLoans(context: Context): List<Loan> =
+        withContext(Dispatchers.IO) {
+            updateLoans(context).filter { !it.status.equals("active", ignoreCase = true) }
+        }
 }
