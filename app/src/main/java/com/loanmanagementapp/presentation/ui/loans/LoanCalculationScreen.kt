@@ -33,7 +33,7 @@ fun LoanCalculationScreen(
     onNavigateBack: () -> Unit = {}
 ) {
     // Status bar'ı beyaz yap ve ikonları koyu renk olarak ayarla
-    StatusBarUtil.SetStatusBarColor(color = White, darkIcons = true)
+    StatusBarUtil.SetStatusBarColor(color = Blue80, darkIcons = true)
     
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
