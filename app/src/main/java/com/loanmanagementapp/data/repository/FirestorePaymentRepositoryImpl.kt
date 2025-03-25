@@ -1,6 +1,7 @@
 package com.loanmanagementapp.data.repository
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.domain.repository.PaymentRepository
@@ -16,7 +17,8 @@ import javax.inject.Singleton
 
 @Singleton
 class FirestorePaymentRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val auth: FirebaseAuth
 ) : PaymentRepository {
 
     companion object {
@@ -106,7 +108,7 @@ class FirestorePaymentRepositoryImpl @Inject constructor(
     }
 
     private fun getCurrentUserId(): String {
-        return "TdzvQ2hpmIYw9EODzMKPsWErh0C3"
+        return auth.currentUser?.uid ?: throw IllegalStateException("Kullanıcı oturumu bulunamadı")
     }
     
     private fun parseDate(dateObj: Any?): Long {
