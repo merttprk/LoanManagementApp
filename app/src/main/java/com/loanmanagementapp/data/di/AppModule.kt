@@ -1,5 +1,6 @@
 package com.loanmanagementapp.data.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.loanmanagementapp.core.calculator.LoanInterestCalculator
 import com.loanmanagementapp.data.repository.FirestoreLoanRepositoryImpl
@@ -28,12 +29,14 @@ object AppModule {
     @Singleton
     fun provideLoanRepository(
         firestore: FirebaseFirestore,
+        auth: FirebaseAuth,
         loanInterestCalculator: LoanInterestCalculator
-    ): LoanRepository = FirestoreLoanRepositoryImpl(firestore)
+    ): LoanRepository = FirestoreLoanRepositoryImpl(firestore, auth)
 
     @Provides
     @Singleton
     fun providePaymentRepository(
-        firestore: FirebaseFirestore
-    ): PaymentRepository = FirestorePaymentRepositoryImpl(firestore)
+        firestore: FirebaseFirestore,
+        auth: FirebaseAuth
+    ): PaymentRepository = FirestorePaymentRepositoryImpl(firestore, auth)
 }
