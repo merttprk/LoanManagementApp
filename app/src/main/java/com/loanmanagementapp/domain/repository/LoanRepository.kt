@@ -10,9 +10,9 @@ import com.loanmanagementapp.core.type.LoanType
  */
 interface LoanRepository {
     /**
-     * Kredileri günceller ve faiz hesaplamalarını yapar
+     * Tüm kredileri getirir
      * @param context Uygulama context'i
-     * @return Güncellenmiş kredi listesi
+     * @return Kredi listesi
      */
     suspend fun updateLoans(context: Context): List<Loan>
     
@@ -30,4 +30,25 @@ interface LoanRepository {
      * @return Ay cinsinden önerilen vade süresi
      */
     fun getRecommendedTerm(loanType: LoanType): Int
+    
+    /**
+     * Kredi listesini kaydeder
+     * @param context Uygulama context'i
+     * @param loans Kaydedilecek kredi listesi
+     */
+    suspend fun saveLoans(context: Context, loans: List<Loan>)
+
+    /**
+     * Aktif kredileri getirir
+     * @param context Uygulama context'i
+     * @return Aktif kredi listesi
+     */
+    suspend fun getActiveLoans(context: Context): List<Loan>
+
+    /**
+     * Pasif kredileri getirir
+     * @param context Uygulama context'i
+     * @return Pasif kredi listesi
+     */
+    suspend fun getPassiveLoans(context: Context): List<Loan>
 }
