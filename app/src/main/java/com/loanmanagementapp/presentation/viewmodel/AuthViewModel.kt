@@ -74,7 +74,7 @@ class AuthViewModel @Inject constructor(
     fun getGoogleSignInIntent(): Intent {
         return authRepository.getGoogleSignInIntent()
     }
-    
+
     fun handleGoogleSignInResult(data: Intent?) {
         val account = authRepository.getLastSignedInAccount()
         if (account != null) {

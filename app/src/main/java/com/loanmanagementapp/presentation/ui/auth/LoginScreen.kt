@@ -50,6 +50,7 @@ import com.loanmanagementapp.presentation.components.CustomEditText
 import com.loanmanagementapp.presentation.components.PrimaryButton
 import com.loanmanagementapp.presentation.state.AuthState
 import com.loanmanagementapp.presentation.viewmodel.AuthViewModel
+import com.loanmanagementapp.util.StatusBarUtil
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,22 +62,24 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isSignUp by remember { mutableStateOf(false) }
     var username by remember { mutableStateOf("") }
-    
+
     // Email validation
     val isEmailValid = remember(email) {
         email.isEmpty() || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
-    
+
     // Password validation
     val isPasswordValid = remember(password) {
         password.isEmpty() || password.length >= 6
     }
-    
+
+    StatusBarUtil.SetStatusBarColor(Color.White, true)
+
     // Handle authentication state changes
     LaunchedEffect(authState) {
         when (authState) {
@@ -91,12 +94,12 @@ fun LoginScreen(
             else -> {}
         }
     }
-    
-    Box(modifier = Modifier.fillMaxSize()) {
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp).background(color = Color.White),
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -105,7 +108,7 @@ fun LoginScreen(
                 stringResource(R.string.app_name),
                 modifier = Modifier.padding(bottom = 30.dp)
             )
-            
+
             if (isSignUp) {
                 CustomEditText(
                     value = username,
@@ -118,10 +121,10 @@ fun LoginScreen(
                         imeAction = ImeAction.Next
                     )
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            
+
             CustomEditText(
                 value = email,
                 onValueChange = { email = it },
@@ -133,9 +136,9 @@ fun LoginScreen(
                     imeAction = ImeAction.Next
                 )
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             CustomEditText(
                 value = password,
                 onValueChange = { password = it },
@@ -148,9 +151,9 @@ fun LoginScreen(
                     imeAction = ImeAction.Done
                 )
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             if (!isSignUp) {
                 TextButton(
                     onClick = { /* Implement password reset */ },
@@ -159,9 +162,9 @@ fun LoginScreen(
                     Text("Forgot Password?")
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             PrimaryButton(
                 text = if (isSignUp) "Sign Up" else "Login",
                 onClick = {
@@ -176,9 +179,9 @@ fun LoginScreen(
                 isLoading = authState is AuthState.Loading,
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -191,16 +194,16 @@ fun LoginScreen(
                 )
                 Divider(modifier = Modifier.weight(1f))
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             OutlinedButton(
                 onClick = {
                     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken("280085505226-jrf7q1605qcq7bdbbu5sojdubhjhua6o.apps.googleusercontent.com") // Replace with your web client ID
                         .requestEmail()
                         .build()
-                    
+
                     val googleSignInClient = GoogleSignIn.getClient(context, gso)
                     // This would typically be handled in the Activity
                     // For demonstration purposes only
@@ -209,9 +212,9 @@ fun LoginScreen(
             ) {
                 Text("Continue with Google")
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -226,7 +229,7 @@ fun LoginScreen(
                 }
             }
         }
-        
+
         // Snackbar for error messages
         SnackbarHost(
             hostState = snackbarHostState,

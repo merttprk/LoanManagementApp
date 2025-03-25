@@ -16,9 +16,20 @@ sealed class Screen(val route: String, val title: String, val selectedIcon: Imag
     data object LoanDetails : Screen("loan_details", "Kredi Detayları", Icons.Filled.Info, Icons.Outlined.Info)
     data object LoanApplication : Screen("loan_application", "Kredi Başvuru", Icons.Filled.Create, Icons.Outlined.Create)
     data object LoanCalculator : Screen("loan_calculator", "Kredi Hesaplama", Icons.Filled.Search, Icons.Outlined.Search)
+    data object Login : Screen("login", "Giriş", Icons.Filled.Home, Icons.Outlined.Home)
 
     // List of all bottom navigation items
     companion object {
-        val bottomNavItems = listOf(Home, LoanApplication,LoanCalculator,)
+        val bottomNavItems = listOf(Home, LoanApplication, LoanCalculator)
+        fun fromRoute(route: String?): Screen {
+            return when (route?.substringBefore("/")) {
+                Home.route -> Home
+                LoanDetails.route -> LoanDetails
+                LoanApplication.route -> LoanApplication
+                Login.route -> Login
+                null -> Home
+                else -> throw IllegalArgumentException("Route $route is not recognized.")
+            }
+        }
     }
 }

@@ -17,6 +17,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,15 +34,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.loanmanagementapp.R
 import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.presentation.components.LoanCardView
+import com.loanmanagementapp.presentation.state.AuthState
 import com.loanmanagementapp.presentation.state.HomeTab
+import com.loanmanagementapp.presentation.viewmodel.AuthViewModel
 import com.loanmanagementapp.presentation.viewmodel.HomeViewModel
 import com.loanmanagementapp.theme.Blue40
 import com.loanmanagementapp.theme.Blue80
@@ -56,7 +62,9 @@ import java.util.Locale
 fun HomeScreen(
     onNavigateToLoanDetails: (String) -> Unit,
     onNavigateToLoanApplication: () -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    onLogout: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val activeLoans by viewModel.activeLoans.collectAsState()
@@ -82,6 +90,14 @@ fun HomeScreen(
         }
     }
 
+    LaunchedEffect(key1 = authViewModel.authState) {
+        authViewModel.authState.collect { state ->
+            if (state is AuthState.Unauthenticated) {
+                onLogout()
+            }
+        }
+    }
+
     StatusBarUtil.SetStatusBarColor(color = Blue80, darkIcons = true)
 
     Scaffold(
@@ -91,7 +107,20 @@ fun HomeScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Blue80,
                     titleContentColor = White
-                )
+                ),
+                actions = {
+                    IconButton(
+                        onClick = {
+                            authViewModel.logout()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_log_out),
+                            contentDescription = "Çıkış Yap",
+                            tint = White
+                        )
+                    }
+                }
             ) 
         }
     ) { innerPadding ->

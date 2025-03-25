@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.loanmanagementapp.presentation.ui.auth.LoginScreen
 import com.loanmanagementapp.presentation.ui.dashboard.HomeScreen
 import com.loanmanagementapp.presentation.ui.loans.LoanApplicationScreen
 import com.loanmanagementapp.presentation.ui.loans.LoanDetailsScreen
@@ -15,13 +16,25 @@ import com.loanmanagementapp.presentation.ui.loans.LoanCalculationScreen
 @Composable
 fun NavGraph(
     navController: NavHostController, 
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    startDestination: String = Screen.Login.route
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route,
+        startDestination = startDestination,
         modifier = modifier
     ) {
+        // Giriş Ekranı
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // Ana Sayfa
         composable(Screen.Home.route) {
             HomeScreen(
@@ -30,6 +43,11 @@ fun NavGraph(
                 },
                 onNavigateToLoanApplication = {
                     navController.navigate(Screen.LoanApplication.route)
+                },
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -50,10 +68,7 @@ fun NavGraph(
         composable(Screen.LoanApplication.route) {
             LoanApplicationScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onApplicationSubmitted = {
-                    // Başvuru tamamlandığında ana sayfaya dön
-                    navController.popBackStack(Screen.Home.route, inclusive = false)
-                }
+                onApplicationSubmitted = { navController.popBackStack() }
             )
         }
         
