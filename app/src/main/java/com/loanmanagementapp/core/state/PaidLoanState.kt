@@ -7,17 +7,15 @@ import com.loanmanagementapp.data.remote.model.Loan
 
 /**
  * Ödenmiş kredi durumu için state sınıfı
- * Tamamen ödenmiş krediler için
+ * Tamamen ödenmiş ve kapatılmış krediler için
  */
 class PaidLoanState : LoanState {
     
-    override fun getStateName(): String = "paid"
+    override fun getStateName(): String = "Paid"
     
     override fun updateLoan(loan: Loan, loanInterestCalculator: LoanInterestCalculator, loanType: LoanType): Loan {
-        // Ödenmiş kredilerde herhangi bir faiz güncellemesi yapılmaz
-        // Sadece vade gününü azalt
-        loan.dueIn -= 1
-        
+        // Ödenmiş kredilerde herhangi bir güncelleme yapılmaz
+        loan.status = getStateName()
         return loan
     }
     

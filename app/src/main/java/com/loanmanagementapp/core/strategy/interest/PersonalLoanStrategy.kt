@@ -4,7 +4,7 @@ import com.loanmanagementapp.core.strategy.interest.strategyinterface.InterestSt
 import com.loanmanagementapp.data.remote.model.Loan
 
 /**
- * Bireysel Kredi faiz hesaplamaları için strateji uygulaması
+ * Bireysel Krediler için faiz hesaplamaları için strateji uygulaması
  */
 class PersonalLoanStrategy : InterestStrategy {
     
@@ -15,16 +15,14 @@ class PersonalLoanStrategy : InterestStrategy {
     
     /**
      * Bireysel krediler için faiz hesapla
-     * Bireysel krediler genellikle basit faiz hesaplaması kullanır
+     * Bireysel krediler genellikle basit faiz kullanır
      */
     override fun calculateInterest(loan: Loan, months: Int): Double {
-        // Basit faiz formülü: P * R * T
-        // P = Anapara, R = Oran (ondalık olarak), T = Süre (yıl olarak)
         val principal = loan.principalAmount
-        val rate = loan.interestRate / 100 // Yüzdeyi ondalık sayıya çevir
-        val timeInYears = months / 12.0
+        val annualRate = loan.interestRate / 100 // Yıllık faiz oranı ondalık olarak
         
-        return principal * rate * timeInYears
+        // Basit faiz formülü: P * r * t
+        return principal * annualRate * (months / 12.0)
     }
     
     override fun getRecommendedTerm(): Int {

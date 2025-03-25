@@ -12,7 +12,7 @@ import kotlin.random.Random
  */
 class ActiveLoanState : LoanState {
     
-    override fun getStateName(): String = "active"
+    override fun getStateName(): String = "Active"
     
     override fun updateLoan(loan: Loan, loanInterestCalculator: LoanInterestCalculator, loanType: LoanType): Loan {
         // Aktif kredilerde faiz oranı güncellenir
@@ -23,6 +23,9 @@ class ActiveLoanState : LoanState {
         
         // Vade gününü azalt
         loan.dueIn -= 1
+        
+        // Kredi durumunu güncelle
+        loan.status = getStateName()
         
         return loan
     }
@@ -50,9 +53,8 @@ class ActiveLoanState : LoanState {
         // Mevcut oran ile temel oranın ağırlıklı ortalamasını al
         val weightedAverage = (currentRate * 0.7) + (baseRate * 0.3)
         
-        // Günlük küçük bir artış ekle (0.01% - 0.05% arası)
-        val dailyIncrease = 0.01 + (Random.nextDouble() * 0.04)
-        
-        return weightedAverage + dailyIncrease
+        // Piyasa koşullarına göre küçük rastgele değişimler ekle
+        val randomFactor = 1.0 + (Random.nextDouble(-0.05, 0.05))
+        return weightedAverage * randomFactor
     }
 }

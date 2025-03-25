@@ -12,7 +12,7 @@ import kotlin.random.Random
  */
 class DefaultLoanState : LoanState {
     
-    override fun getStateName(): String = "default"
+    override fun getStateName(): String = "Default"
     
     override fun updateLoan(loan: Loan, loanInterestCalculator: LoanInterestCalculator, loanType: LoanType): Loan {
         // Temerrüt durumundaki kredilerde en yüksek faiz uygulanır
@@ -22,6 +22,9 @@ class DefaultLoanState : LoanState {
         
         // Vade gününü azalt (negatif değer gecikme gününü gösterir)
         loan.dueIn -= 1
+        
+        // Kredi durumunu güncelle
+        loan.status = getStateName()
         
         return loan
     }

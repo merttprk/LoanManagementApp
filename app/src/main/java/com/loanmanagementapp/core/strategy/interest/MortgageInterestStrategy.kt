@@ -20,18 +20,10 @@ class MortgageInterestStrategy : InterestStrategy {
      */
     override fun calculateInterest(loan: Loan, months: Int): Double {
         val principal = loan.principalAmount
-        val monthlyRate = (BASE_RATE + loan.interestRate) / 100 / 12 // Aylık faiz oranı ondalık olarak
+        val annualRate = loan.interestRate / 100 // Yıllık faiz oranı ondalık olarak
         
-        // Standart konut kredisi formülü kullanarak aylık ödemeyi hesapla
-        val monthlyPayment = principal * monthlyRate * (1 + monthlyRate)
-            .pow(months.toDouble()) /
-                            ((1 + monthlyRate).pow(months.toDouble()) - 1)
-        
-        // Kredinin ömrü boyunca toplam ödeme
-        val totalPayment = monthlyPayment * months
-        
-        // Faiz, toplam ödeme ile anapara arasındaki farktır
-        return totalPayment - principal
+        // Basit faiz formülü: P * r * t
+        return principal * annualRate * (months / 12.0)
     }
     
     override fun getRecommendedTerm(): Int {
