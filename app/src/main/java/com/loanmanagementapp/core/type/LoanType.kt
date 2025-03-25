@@ -7,5 +7,6 @@ enum class LoanType {
     PERSONAL,
     AUTO,
     MORTGAGE,
-    BUSINESS
+    BUSINESS,
+    EDUCATION
 }

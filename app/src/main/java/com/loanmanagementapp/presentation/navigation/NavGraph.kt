@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.loanmanagementapp.domain.repository.LoanRepository
 import com.loanmanagementapp.presentation.ui.dashboard.HomeScreen
+import com.loanmanagementapp.presentation.ui.loans.LoanCalculationScreen
+import com.loanmanagementapp.presentation.ui.loans.LoanDetailsScreen
 
 @Composable
 fun NavGraph(
@@ -23,12 +25,10 @@ fun NavGraph(
             HomeScreen(repository)
         }
         composable(Screen.LoanDetails.route) {
-            // Geçici olarak HomeScreen kullanılıyor, daha sonra LoanDetailsScreen eklenecek
-            HomeScreen(repository)
+            LoanDetailsScreen()
         }
         composable(Screen.LoanApplication.route) {
-            // Geçici olarak HomeScreen kullanılıyor, daha sonra LoanApplicationScreen eklenecek
-            HomeScreen(repository)
+            LoanCalculationScreen()
         }
     }
 }

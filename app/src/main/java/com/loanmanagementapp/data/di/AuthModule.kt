@@ -29,10 +29,8 @@ object AuthModule {
         try {
             if (FirebaseApp.getApps(context).isEmpty()) {
                 FirebaseApp.initializeApp(context)
-                Log.d("AuthModule", "Firebase initialized in AuthModule")
             }
-        } catch (e: Exception) {
-            Log.e("AuthModule", "Error initializing Firebase: ${e.message}", e)
+        } catch (_: Exception) {
         }
         
         return Firebase.auth
@@ -41,7 +39,6 @@ object AuthModule {
     @Provides
     @Singleton
     fun provideFirebaseFirestore(@ApplicationContext context: Context): FirebaseFirestore {
-        // Firebase should already be initialized by provideFirebaseAuth
         return Firebase.firestore
     }
     
