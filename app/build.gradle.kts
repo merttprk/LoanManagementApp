@@ -62,6 +62,9 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
 
+    // Gson
+    implementation(libs.gson)
+
     //Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore.ktx)

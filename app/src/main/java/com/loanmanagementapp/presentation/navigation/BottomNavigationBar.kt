@@ -18,6 +18,12 @@ import com.loanmanagementapp.theme.White
 fun BottomNavigationBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    
+    // Mevcut rotanın ana rotasını al (parametreleri hariç tut)
+    val currentScreenRoute = when {
+        currentRoute?.startsWith("${Screen.LoanDetails.route}/") == true -> Screen.LoanDetails.route
+        else -> currentRoute
+    }
 
     NavigationBar(
         containerColor = Blue80
@@ -32,7 +38,7 @@ fun BottomNavigationBar(navController: NavController) {
                     )
                 },
                 label = { Text(screen.title, color = White) },
-                selected = currentRoute == screen.route,
+                selected = currentScreenRoute == screen.route,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = White,
                     unselectedIconColor = White.copy(alpha = 0.6f),
@@ -41,18 +47,27 @@ fun BottomNavigationBar(navController: NavController) {
                     indicatorColor = LightBlue80
                 ),
                 onClick = {
-                    navController.navigate(screen.route) {
-                        // Grafiklerin başlangıç noktasına kadar geri giderek
-                        // Çok büyük bir hedef yığını birikmesini engelle
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    if (screen.route == Screen.LoanDetails.route) {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        // Aynı öğe yeniden seçildiğinde aynı hedefin birden fazla kopyasını engelle
-                        launchSingleTop = true
-                        // Daha önce seçilen bir öğe yeniden seçildiğinde durumu geri yükle
-                        restoreState = true
+                    } else {
+                        navController.navigate(screen.route) {
+                            // Grafiklerin başlangıç noktasına kadar geri giderek
+                            // Çok büyük bir hedef yığını birikmesini engelle
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Aynı öğe yeniden seçildiğinde aynı hedefin birden fazla kopyasını engelle
+                            launchSingleTop = true
+                            // Önceki durumu geri yükle
+                            restoreState = true
+                        }
                     }
-
                 }
             )
         }

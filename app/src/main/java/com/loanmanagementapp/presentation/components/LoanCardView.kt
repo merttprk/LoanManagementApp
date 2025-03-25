@@ -61,7 +61,7 @@ fun LoanCardView(
             ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.White
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
@@ -99,7 +99,6 @@ fun LoanCardView(
                         text = statusText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = statusColor,
-                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -115,13 +114,13 @@ fun LoanCardView(
                     Text(
                         text = "Ana Para",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.Gray
                     )
-                    
                     Text(
                         text = currencyFormat.format(loan.principalAmount),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
                 }
                 
@@ -129,25 +128,23 @@ fun LoanCardView(
                     Text(
                         text = "Faiz Oranı",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.Gray
                     )
-                    
                     Text(
                         text = "%${loan.interestRate}",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold,
+                        color = LightBlue80
                     )
                 }
             }
             
-            // Detaylar (opsiyonel)
             if (showDetails) {
                 Spacer(modifier = Modifier.height(12.dp))
-                
-                Divider(color = LightBlue80.copy(alpha = 0.3f))
-                
+                Divider(color = Color.LightGray, thickness = 1.dp)
                 Spacer(modifier = Modifier.height(12.dp))
                 
+                // Vade ve Kredi ID
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -156,13 +153,13 @@ fun LoanCardView(
                         Text(
                             text = "Vade (Gün)",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.Gray
                         )
-                        
                         Text(
-                            text = loan.dueIn.toString(),
+                            text = "${loan.dueIn}",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
                         )
                     }
                     
@@ -170,12 +167,12 @@ fun LoanCardView(
                         Text(
                             text = "Kredi ID",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.Gray
                         )
-                        
                         Text(
                             text = loan.id,
                             style = MaterialTheme.typography.bodyMedium,
+                            color = Color.DarkGray,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -194,7 +191,7 @@ fun LoanCardView(
 private fun getStatusColor(status: String): Color {
     return when (status.lowercase()) {
         "active" -> Color(0xFF4CAF50) // Yeşil
-        "paid" -> Color(0xFF2196F3)   // Mavi
+        "paid" -> Blue80             // Mavi
         "overdue" -> Color(0xFFFF9800) // Turuncu
         "default" -> Color(0xFFF44336) // Kırmızı
         else -> Color.Gray

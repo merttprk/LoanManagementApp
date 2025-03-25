@@ -1,10 +1,11 @@
 package com.loanmanagementapp.data.di
 
 import com.loanmanagementapp.domain.repository.AuthRepository
-import com.loanmanagementapp.domain.usecase.auth.GetAuthStatusUseCase
-import com.loanmanagementapp.domain.usecase.auth.LoginUseCase
-import com.loanmanagementapp.domain.usecase.auth.LogoutUseCase
-import com.loanmanagementapp.domain.usecase.auth.SignupUseCase
+import com.loanmanagementapp.domain.repository.LoanRepository
+import com.loanmanagementapp.domain.repository.PaymentRepository
+import com.loanmanagementapp.domain.usecase.auth.*
+import com.loanmanagementapp.domain.usecase.loan.GetLoanDetailsUseCase
+import com.loanmanagementapp.domain.usecase.payment.GetPaymentHistoryUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,7 +13,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
 
 /**
- * Module for providing view models.
+ * Module for providing view model scoped use cases.
  */
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -42,4 +43,18 @@ object ViewModelModule {
         return GetAuthStatusUseCase(authRepository)
     }
 
+    @Provides
+    @ViewModelScoped
+    fun provideGetLoanDetailsUseCase(loanRepository: LoanRepository): GetLoanDetailsUseCase {
+        return GetLoanDetailsUseCase(loanRepository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetPaymentHistoryUseCase(
+        paymentRepository: PaymentRepository,
+        loanRepository: LoanRepository
+    ): GetPaymentHistoryUseCase {
+        return GetPaymentHistoryUseCase(paymentRepository, loanRepository)
+    }
 }
