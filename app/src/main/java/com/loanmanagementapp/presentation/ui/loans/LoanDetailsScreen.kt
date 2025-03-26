@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.data.remote.model.Payment
+import com.loanmanagementapp.presentation.components.LoanCardView
+import com.loanmanagementapp.presentation.components.LoanDetailCard
 import com.loanmanagementapp.presentation.viewmodel.LoanDetailsViewModel
 import com.loanmanagementapp.theme.Blue40
 import com.loanmanagementapp.theme.Blue80
@@ -185,7 +187,7 @@ fun LoanDetailsScreen(
  */
 @Composable
 private fun LoanDetailsTab(loan: Loan) {
-    val currencyFormat = NumberFormat.getCurrencyInstance(Locale("tr", "TR"))
+    val calculatedInterest = (loan.principalAmount * loan.interestRate * (loan.dueIn / 30.0)) / 100.0
     
     LazyColumn(
         modifier = Modifier
@@ -193,53 +195,12 @@ private fun LoanDetailsTab(loan: Loan) {
             .padding(16.dp)
     ) {
         item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = loan.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Durum: ${getStatusText(loan.status)}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Ana Para: ${currencyFormat.format(loan.principalAmount)}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Faiz Oranı: %${loan.interestRate}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Vade: ${loan.dueIn / 30} ay",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
+            LoanDetailCard(
+                loan = loan,
+                calculatedInterest = calculatedInterest,
+                term = loan.dueIn / 30, // Convert days to months
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

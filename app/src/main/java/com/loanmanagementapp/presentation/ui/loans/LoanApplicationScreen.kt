@@ -136,7 +136,6 @@ fun LoanApplicationScreen(
                     .fillMaxSize()
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 // Kredi türü seçimi
                 Column(
@@ -181,42 +180,45 @@ fun LoanApplicationScreen(
                     }
                 }
 
-                // Kredi adı
-                OutlinedTextField(
-                    value = loanName,
-                    onValueChange = {
-                        loanName = it
-                        loanNameError = if (it.isBlank()) "Kredi adı boş olamaz" else null
-                    },
-                    label = { Text("Kredi Adı") },
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    isError = loanNameError != null,
-                    supportingText = { loanNameError?.let { Text(it) } }
-                )
+                ) {
+                    // Kredi adı
+                    OutlinedTextField(
+                        value = loanName,
+                        onValueChange = {
+                            loanName = it
+                            loanNameError = if (it.isBlank()) "Kredi adı boş olamaz" else null
+                        },
+                        label = { Text("Kredi Adı") },
+                        modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+                        isError = loanNameError != null,
+                        supportingText = { loanNameError?.let { Text(it) } }
+                    )
 
-                // Ana para miktarı
-                OutlinedTextField(
-                    value = principalAmount,
-                    onValueChange = {
-                        principalAmount = it
-                        principalAmountError = when {
-                            it.isBlank() -> "Ana para miktarı boş olamaz"
-                            it.toDoubleOrNull() == null -> "Geçerli bir sayı giriniz"
-                            it.toDouble() <= 0 -> "Ana para miktarı sıfırdan büyük olmalıdır"
-                            else -> null
-                        }
-                    },
-                    label = { Text("Ana Para Miktarı (TL)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = principalAmountError != null,
-                    supportingText = { principalAmountError?.let { Text(it) } }
-                )
+                    // Ana para miktarı
+                    OutlinedTextField(
+                        value = principalAmount,
+                        onValueChange = {
+                            principalAmount = it
+                            principalAmountError = when {
+                                it.isBlank() -> "Ana para miktarı boş olamaz"
+                                it.toDoubleOrNull() == null -> "Geçerli bir sayı giriniz"
+                                it.toDouble() <= 0 -> "Ana para miktarı sıfırdan büyük olmalıdır"
+                                else -> null
+                            }
+                        },
+                        label = { Text("Ana Para Miktarı (TL)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = principalAmountError != null,
+                        supportingText = { principalAmountError?.let { Text(it) } }
+                    )
+                }
 
                 // Vade seçimi
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
                         text = "Vade",
@@ -279,7 +281,7 @@ fun LoanApplicationScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(56.dp).padding(top = 16.dp),
                     enabled = !isLoading
                 ) {
                     if (isLoading) {
