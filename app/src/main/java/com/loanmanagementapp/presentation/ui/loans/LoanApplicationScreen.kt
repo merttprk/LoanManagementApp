@@ -196,7 +196,7 @@ fun LoanApplicationScreen(
                         expanded = isLoanTypeDropdownExpanded,
                         onDismissRequest = { isLoanTypeDropdownExpanded = false }
                     ) {
-                        LoanType.values().forEach { loanType ->
+                        LoanType.entries.forEach { loanType ->
                             DropdownMenuItem(
                                 text = { Text(getLoanTypeText(loanType)) },
                                 onClick = {

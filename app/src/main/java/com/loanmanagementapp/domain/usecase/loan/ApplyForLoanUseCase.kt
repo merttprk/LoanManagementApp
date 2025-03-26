@@ -45,7 +45,7 @@ class ApplyForLoanUseCase @Inject constructor(
             name = loanName,
             principalAmount = principalAmount,
             interestRate = interestRate,
-            status = "Active",
+            status = "active",
             dueIn = recommendedTerm * 30 // Ay cinsinden vadeyi gün cinsine çevir
         )
         

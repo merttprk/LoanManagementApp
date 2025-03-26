@@ -67,14 +67,12 @@ fun LoanDetailsScreen(
     onNavigateBack: () -> Unit,
     viewModel: LoanDetailsViewModel = hiltViewModel()
 ) {
-    // Status bar'ı beyaz yap ve ikonları koyu renk olarak ayarla
     StatusBarUtil.SetStatusBarColor(color = Blue80, darkIcons = true)
     
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val paymentState by viewModel.paymentState.collectAsState()
-    
-    // Tab seçimi için state
+
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Kredi Detayları", "Ödeme Geçmişi")
     

@@ -41,9 +41,6 @@ fun ReusableListItemPreview() {
     )
 }
 
-
-
-
 @Composable
 fun ReusableListItem(
     primaryText: String,

@@ -12,7 +12,7 @@ import kotlin.random.Random
  */
 class ActiveLoanState : LoanState {
     
-    override fun getStateName(): String = "Active"
+    override fun getStateName(): String = "active"
     
     override fun updateLoan(loan: Loan, loanInterestCalculator: LoanInterestCalculator, loanType: LoanType): Loan {
         // Aktif kredilerde faiz oranı güncellenir

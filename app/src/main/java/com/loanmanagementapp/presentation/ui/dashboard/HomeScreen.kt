@@ -4,17 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,20 +38,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.loanmanagementapp.R
 import com.loanmanagementapp.data.remote.model.Loan
-import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.presentation.components.LoanCardView
 import com.loanmanagementapp.presentation.state.AuthState
 import com.loanmanagementapp.presentation.state.HomeTab
 import com.loanmanagementapp.presentation.viewmodel.AuthViewModel
 import com.loanmanagementapp.presentation.viewmodel.HomeViewModel
-import com.loanmanagementapp.theme.Blue40
 import com.loanmanagementapp.theme.Blue80
-import com.loanmanagementapp.theme.LightBlue80
 import com.loanmanagementapp.theme.White
 import com.loanmanagementapp.util.StatusBarUtil
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +60,6 @@ fun HomeScreen(
     val context = LocalContext.current
     val activeLoans by viewModel.activeLoans.collectAsState()
     val passiveLoans by viewModel.passiveLoans.collectAsState()
-    val paymentHistory by viewModel.paymentHistory.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     
@@ -326,150 +316,6 @@ fun PassiveLoansTab(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun PaymentHistoryTab(
-    paymentHistory: List<Payment>
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Ödeme Geçmişim",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        
-        if (paymentHistory.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Ödeme geçmişiniz bulunmamaktadır",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(paymentHistory) { payment ->
-                    PaymentHistoryItem(payment = payment)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PaymentHistoryItem(payment: Payment) {
-    val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Ödeme Tarihi:",
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = dateFormat.format(payment.paymentDate),
-                    fontWeight = FontWeight.Normal
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Tutar:",
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "${payment.amount} TL",
-                    fontWeight = FontWeight.Normal
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Durum:",
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = payment.status,
-                    fontWeight = FontWeight.Normal,
-                    color = if (payment.status == "Completed") Blue80 else LightBlue80
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun NewLoanApplicationTab(
-    onApplyClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Yeni Kredi Başvurusu",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-        
-        Text(
-            text = "Yeni bir kredi başvurusu yapmak için aşağıdaki butona tıklayın",
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-        
-        Button(
-            onClick = onApplyClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        ) {
-            Text(
-                text = "Kredi Başvurusu Yap",
-                fontSize = 16.sp
-            )
         }
     }
 }

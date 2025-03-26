@@ -14,9 +14,7 @@ class LoanApplication : Application() {
         super.onCreate()
         
         try {
-            // Check if Firebase is already initialized
             if (FirebaseApp.getApps(this).isEmpty()) {
-                // Initialize Firebase
                 FirebaseApp.initializeApp(this)
                 Log.d("LoanApplication", "Firebase initialized successfully")
             } else {
