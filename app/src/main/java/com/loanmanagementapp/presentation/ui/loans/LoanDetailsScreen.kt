@@ -43,6 +43,7 @@ import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.presentation.components.LoanCardView
 import com.loanmanagementapp.presentation.components.LoanDetailCard
+import com.loanmanagementapp.presentation.ui.components.ReusableListItem
 import com.loanmanagementapp.presentation.viewmodel.LoanDetailsViewModel
 import com.loanmanagementapp.theme.Blue40
 import com.loanmanagementapp.theme.Blue80
@@ -250,61 +251,21 @@ private fun PaymentHistoryTab(
         }
     } else {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(payments) { payment ->
-                PaymentItem(payment)
-                Divider()
+            items(payments.sortedBy { it.dueDate }) { payment ->
+                ReusableListItem(
+                    date = payment.dueDate,
+                    amount = payment.amount,
+                    status = when (payment.status.lowercase()) {
+                        "pending" -> "Bekliyor"
+                        "completed" -> "Tamamlandı"
+                        "overdue" -> "Gecikmiş"
+                        else -> payment.status
+                    },
+                    paymentDate = if (payment.status.lowercase() != "pending") payment.paymentDate else null
+                )
             }
         }
-    }
-}
-
-/**
- * Ödeme öğesi
- * @param payment Gösterilecek ödeme
- */
-@Composable
-private fun PaymentItem(payment: Payment) {
-    val currencyFormat = NumberFormat.getCurrencyInstance(Locale("tr", "TR"))
-    val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale("tr", "TR"))
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp)
-    ) {
-        Text(
-            text = "Ödeme Tarihi: ${if (payment.dueDate != null) dateFormat.format(payment.dueDate) else "Henüz ödenmedi"}",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Tutar: ${currencyFormat.format(payment.amount)}",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Durum: ${getPaidText(payment.status)}",
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-/**
- * Kredi durumunu Türkçe metne çevirir
- * @param status Kredi durumu
- * @return Türkçe durum metni
- */
-private fun getPaidText(status: String): String {
-    return when (status.lowercase()) {
-        "pending" -> "Bekleniyor"
-        else -> "Gecikme"
     }
 }
