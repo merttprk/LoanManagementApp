@@ -273,7 +273,7 @@ fun LoanTypeSelector(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            LoanType.values().forEach { loanType ->
+            LoanType.entries.forEach { loanType ->
                 DropdownMenuItem(
                     text = { Text(getLoanTypeDisplayName(loanType)) },
                     onClick = {
