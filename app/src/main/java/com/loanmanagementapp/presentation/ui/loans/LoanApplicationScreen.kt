@@ -143,38 +143,6 @@ fun LoanApplicationScreen(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Kredi adı
-                OutlinedTextField(
-                    value = loanName,
-                    onValueChange = { 
-                        loanName = it
-                        loanNameError = if (it.isBlank()) "Kredi adı boş olamaz" else null
-                    },
-                    label = { Text("Kredi Adı") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = loanNameError != null,
-                    supportingText = { loanNameError?.let { Text(it) } }
-                )
-                
-                // Ana para miktarı
-                OutlinedTextField(
-                    value = principalAmount,
-                    onValueChange = { 
-                        principalAmount = it
-                        principalAmountError = when {
-                            it.isBlank() -> "Ana para miktarı boş olamaz"
-                            it.toDoubleOrNull() == null -> "Geçerli bir sayı giriniz"
-                            it.toDouble() <= 0 -> "Ana para miktarı sıfırdan büyük olmalıdır"
-                            else -> null
-                        }
-                    },
-                    label = { Text("Ana Para Miktarı (TL)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = principalAmountError != null,
-                    supportingText = { principalAmountError?.let { Text(it) } }
-                )
-                
                 // Kredi türü seçimi
                 ExposedDropdownMenuBox(
                     expanded = isLoanTypeDropdownExpanded,
@@ -207,6 +175,38 @@ fun LoanApplicationScreen(
                         }
                     }
                 }
+                
+                // Kredi adı
+                OutlinedTextField(
+                    value = loanName,
+                    onValueChange = { 
+                        loanName = it
+                        loanNameError = if (it.isBlank()) "Kredi adı boş olamaz" else null
+                    },
+                    label = { Text("Kredi Adı") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = loanNameError != null,
+                    supportingText = { loanNameError?.let { Text(it) } }
+                )
+                
+                // Ana para miktarı
+                OutlinedTextField(
+                    value = principalAmount,
+                    onValueChange = { 
+                        principalAmount = it
+                        principalAmountError = when {
+                            it.isBlank() -> "Ana para miktarı boş olamaz"
+                            it.toDoubleOrNull() == null -> "Geçerli bir sayı giriniz"
+                            it.toDouble() <= 0 -> "Ana para miktarı sıfırdan büyük olmalıdır"
+                            else -> null
+                        }
+                    },
+                    label = { Text("Ana Para Miktarı (TL)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = principalAmountError != null,
+                    supportingText = { principalAmountError?.let { Text(it) } }
+                )
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 

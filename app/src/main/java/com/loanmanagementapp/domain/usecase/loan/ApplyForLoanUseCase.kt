@@ -4,7 +4,7 @@ import android.content.Context
 import com.loanmanagementapp.core.type.LoanType
 import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.domain.repository.LoanRepository
-import java.util.UUID
+import java.util.Random
 import javax.inject.Inject
 
 /**
@@ -39,14 +39,19 @@ class ApplyForLoanUseCase @Inject constructor(
             LoanType.EDUCATION -> 10.0
         }
         
+        // 4 haneli rastgele bir sayı oluştur
+        val random = Random()
+        val randomNumber = 1000 + random.nextInt(9000) // 1000-9999 arası
+        
         // Yeni kredi oluştur
         val newLoan = Loan(
-            id = UUID.randomUUID().toString(),
+            id = "L$randomNumber",
             name = loanName,
             principalAmount = principalAmount,
             interestRate = interestRate,
             status = "active",
-            dueIn = recommendedTerm * 30 // Ay cinsinden vadeyi gün cinsine çevir
+            dueIn = recommendedTerm * 30, // Ay cinsinden vadeyi gün cinsine çevir
+            type = loanType
         )
         
         // Mevcut kredileri getir

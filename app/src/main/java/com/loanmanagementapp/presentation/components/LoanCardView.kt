@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.loanmanagementapp.core.type.LoanType
 import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.theme.Blue80
 import com.loanmanagementapp.theme.LightBlue80
@@ -41,7 +42,7 @@ import java.util.Locale
 @Preview
 @Composable
 fun LoanCardPreview() {
-    LoanCardView(loan = Loan(name = "Personal Loan", principalAmount = 10000.0, interestRate = 5.0, status = "active", dueIn = 30, id = "123"))
+    LoanCardView(loan = Loan(name = "Personal Loan", principalAmount = 10000.0, interestRate = 5.0, status = "active", dueIn = 30, id = "L1234", type = LoanType.PERSONAL))
 }
 
 @Composable
@@ -84,15 +85,26 @@ fun LoanCardView(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = loan.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Blue80,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                Column(
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    Text(
+                        text = getLoanTypeText(loan.type),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue80,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    
+                    Text(
+                        text = loan.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 
                 Spacer(modifier = Modifier.width(8.dp))
                 
@@ -199,8 +211,8 @@ private fun getStatusColor(status: String): Color {
     return when (status.lowercase()) {
         "active" -> Color(0xFF4CAF50) // Yeşil
         "paid" -> Blue80             // Mavi
-        "overdue" -> Color(0xFFFF9800) // Turuncu
-        "default" -> Color(0xFFF44336) // Kırmızı
+        "overdue" -> Color(0xFFF44336) // Kırmızı
+        "default" -> Color(0xFF9C27B0) // Mor
         else -> Color.Gray
     }
 }
@@ -217,5 +229,20 @@ private fun getStatusText(status: String): String {
         "overdue" -> "Gecikmiş"
         "default" -> "Temerrüt"
         else -> status
+    }
+}
+
+/**
+ * Kredi türünü Türkçe metne çevirir
+ * @param type Kredi türü
+ * @return Türkçe kredi türü metni
+ */
+private fun getLoanTypeText(type: LoanType): String {
+    return when (type) {
+        LoanType.PERSONAL -> "Kişisel Kredi"
+        LoanType.MORTGAGE -> "Konut Kredisi"
+        LoanType.AUTO -> "Araba Kredisi"
+        LoanType.BUSINESS -> "İşletme Kredisi"
+        LoanType.EDUCATION -> "Eğitim Kredisi"
     }
 }
