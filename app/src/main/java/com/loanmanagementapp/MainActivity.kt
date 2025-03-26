@@ -5,14 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -56,6 +52,33 @@ fun LoanApp(authViewModel: AuthViewModel = hiltViewModel()) {
         currentBackStackEntry?.destination?.route ?: Screen.Login.route
     }
 
+    var isInitialized by remember { mutableStateOf(false) }
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthState.Initial -> {
+                isInitialized = false
+            }
+            is AuthState.Authenticated -> {
+                if (!isInitialized) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                    isInitialized = true
+                }
+            }
+            is AuthState.Unauthenticated -> {
+                if (!isInitialized) {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                    isInitialized = true
+                }
+            }
+            else -> {}
+        }
+    }
+
     val showBottomBar = remember(currentRoute, authState) {
         currentRoute != Screen.Login.route && authState is AuthState.Authenticated
     }
@@ -70,7 +93,7 @@ fun LoanApp(authViewModel: AuthViewModel = hiltViewModel()) {
         NavGraph(
             navController = navController,
             modifier = Modifier.padding(innerPadding),
-            startDestination = if (authState is AuthState.Authenticated) Screen.Home.route else Screen.Login.route
+            startDestination = Screen.Login.route
         )
     }
 }
