@@ -96,11 +96,9 @@ class HomeViewModel @Inject constructor(
                         id = "P${loan.id}",
                         loanId = loan.id,
                         amount = loan.amount,
-                        paymentDate = System.currentTimeMillis(),
-                        isPrincipal = true,
-                        isInterest = true,
+                        dueDate = loan.dueDate,
                         status = loan.status,
-                        description = loan.description
+                        paymentDate = loan.paymentDate
                     )
                 }.sortedByDescending { it.paymentDate }
                 _error.value = null

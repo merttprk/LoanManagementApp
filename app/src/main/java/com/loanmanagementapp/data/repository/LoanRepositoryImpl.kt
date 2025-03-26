@@ -1,13 +1,16 @@
 package com.loanmanagementapp.data.repository
 
 import android.content.Context
+import com.google.firebase.firestore.FirebaseFirestore
 import com.loanmanagementapp.core.calculator.LoanInterestCalculator
 import com.loanmanagementapp.core.state.statusinterface.LoanState
 import com.loanmanagementapp.core.type.LoanType
 import com.loanmanagementapp.data.LoanService
 import com.loanmanagementapp.data.remote.model.Loan
+import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.domain.repository.LoanRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -17,7 +20,8 @@ import javax.inject.Inject
  */
 class LoanRepositoryImpl @Inject constructor(
     private val loanService: LoanService,
-    private val loanInterestCalculator: LoanInterestCalculator
+    private val loanInterestCalculator: LoanInterestCalculator,
+    private val firestore: FirebaseFirestore
 ) : LoanRepository {
 
     /**
@@ -84,7 +88,7 @@ class LoanRepositoryImpl @Inject constructor(
         }
 
     /**
-     * Aktif kredileri Flow olarak getirir
+     * Aktif kredileri getirir
      */
     override suspend fun getActiveLoans(context: Context): List<Loan> =
         withContext(Dispatchers.IO) {
@@ -92,10 +96,57 @@ class LoanRepositoryImpl @Inject constructor(
         }
 
     /**
-     * Pasif kredileri Flow olarak getirir
+     * Pasif kredileri getirir
      */
-    override suspend fun getPassiveLoans(context: Context): List<Loan> =
+    override suspend fun getInactiveLoans(context: Context): List<Loan> =
         withContext(Dispatchers.IO) {
             updateLoans(context).filter { !it.status.equals("active", ignoreCase = true) }
         }
+        
+    /**
+     * Belirli bir kredinin ödeme planını Firestore'a kaydeder
+     */
+    override suspend fun savePayments(loanId: String, payments: List<Payment>) {
+        withContext(Dispatchers.IO) {
+            val batch = firestore.batch()
+            
+            payments.forEach { payment ->
+                val paymentRef = firestore.collection("loans")
+                    .document(loanId)
+                    .collection("payments")
+                    .document(payment.id)
+                    
+                batch.set(paymentRef, payment)
+            }
+            
+            batch.commit().await()
+        }
+    }
+        
+    /**
+     * Belirli bir kredinin ödeme planını getirir
+     */
+    override suspend fun getPayments(loanId: String): List<Payment> =
+        withContext(Dispatchers.IO) {
+            firestore.collection("loans")
+                .document(loanId)
+                .collection("payments")
+                .get()
+                .await()
+                .toObjects(Payment::class.java)
+        }
+        
+    /**
+     * Belirli bir ödemenin durumunu günceller
+     */
+    override suspend fun updatePaymentStatus(payment: Payment) {
+        withContext(Dispatchers.IO) {
+            firestore.collection("loans")
+                .document(payment.loanId)
+                .collection("payments")
+                .document(payment.id)
+                .set(payment)
+                .await()
+        }
+    }
 }

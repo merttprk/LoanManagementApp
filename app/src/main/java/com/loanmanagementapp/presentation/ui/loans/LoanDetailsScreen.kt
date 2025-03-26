@@ -70,19 +70,19 @@ fun LoanDetailsScreen(
     viewModel: LoanDetailsViewModel = hiltViewModel()
 ) {
     StatusBarUtil.SetStatusBarColor(color = Blue80, darkIcons = true)
-    
+
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val paymentState by viewModel.paymentState.collectAsState()
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Kredi Detayları", "Ödeme Geçmişi")
-    
+
     // Kredileri ve ödemeleri yükle
     LaunchedEffect(key1 = loanId) {
         viewModel.getLoanById(context, loanId)
         viewModel.getLoanPayments(context, loanId)
-        
+
         // Hata durumunu izle
         viewModel.state.collectLatest { state ->
             if (state.error != null) {
@@ -95,11 +95,11 @@ fun LoanDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = "Kredi Detayları",
                         color = White
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -135,7 +135,7 @@ fun LoanDetailsScreen(
                     )
                 }
             }
-            
+
             if (state.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -188,7 +188,7 @@ fun LoanDetailsScreen(
 @Composable
 private fun LoanDetailsTab(loan: Loan) {
     val calculatedInterest = (loan.principalAmount * loan.interestRate * (loan.dueIn / 30.0)) / 100.0
-    
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -270,45 +270,41 @@ private fun PaymentHistoryTab(
 private fun PaymentItem(payment: Payment) {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("tr", "TR"))
     val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale("tr", "TR"))
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp)
     ) {
         Text(
-            text = "Ödeme Tarihi: ${dateFormat.format(Date(payment.paymentDate))}",
+            text = "Ödeme Tarihi: ${if (payment.dueDate != null) dateFormat.format(payment.dueDate) else "Henüz ödenmedi"}",
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold
         )
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         Text(
             text = "Tutar: ${currencyFormat.format(payment.amount)}",
             style = MaterialTheme.typography.bodyMedium
         )
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         Text(
-            text = "Açıklama: ${payment.description ?: "Açıklama bulunamadı"}",
+            text = "Durum: ${getPaidText(payment.status)}",
             style = MaterialTheme.typography.bodyMedium
         )
     }
 }
-
 /**
  * Kredi durumunu Türkçe metne çevirir
  * @param status Kredi durumu
  * @return Türkçe durum metni
  */
-private fun getStatusText(status: String): String {
+private fun getPaidText(status: String): String {
     return when (status.lowercase()) {
-        "active" -> "Aktif"
-        "paid" -> "Ödenmiş"
-        "overdue" -> "Gecikmiş"
-        "default" -> "Temerrüt"
-        else -> status
+        "pending" -> "Bekleniyor"
+        else -> "Gecikme"
     }
 }

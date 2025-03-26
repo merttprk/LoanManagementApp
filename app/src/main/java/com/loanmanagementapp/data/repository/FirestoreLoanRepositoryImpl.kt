@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.loanmanagementapp.core.type.LoanType
 import com.loanmanagementapp.data.remote.model.Loan
+import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.domain.repository.LoanRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -130,8 +131,69 @@ class FirestoreLoanRepositoryImpl @Inject constructor(
         updateLoans(context).filter { it.status.equals("active", ignoreCase = true) }
     }
 
-    override suspend fun getPassiveLoans(context: Context): List<Loan> = withContext(Dispatchers.IO) {
+    override suspend fun getInactiveLoans(context: Context): List<Loan> = withContext(Dispatchers.IO) {
         updateLoans(context).filter { !it.status.equals("active", ignoreCase = true) }
+    }
+
+    override suspend fun savePayments(loanId: String, payments: List<Payment>) {
+        withContext(Dispatchers.IO) {
+            try {
+                val batch = firestore.batch()
+                
+                payments.forEach { payment ->
+                    val paymentRef = firestore.collection(USERS_COLLECTION)
+                        .document(getCurrentUserId())
+                        .collection(LOANS_COLLECTION)
+                        .document(loanId)
+                        .collection("payments")
+                        .document(payment.id)
+                    
+                    batch.set(paymentRef, payment)
+                }
+                
+                batch.commit().await()
+                Timber.d("${payments.size} ödeme kaydı başarıyla oluşturuldu")
+            } catch (e: Exception) {
+                Timber.e(e, "Ödemeler kaydedilirken hata oluştu")
+                throw e
+            }
+        }
+    }
+    
+    override suspend fun getPayments(loanId: String): List<Payment> =
+        withContext(Dispatchers.IO) {
+            try {
+                firestore.collection(USERS_COLLECTION)
+                    .document(getCurrentUserId())
+                    .collection(LOANS_COLLECTION)
+                    .document(loanId)
+                    .collection("payments")
+                    .get()
+                    .await()
+                    .toObjects(Payment::class.java)
+            } catch (e: Exception) {
+                Timber.e(e, "Ödemeler yüklenirken hata oluştu")
+                emptyList()
+            }
+        }
+    
+    override suspend fun updatePaymentStatus(payment: Payment) {
+        withContext(Dispatchers.IO) {
+            try {
+                firestore.collection(USERS_COLLECTION)
+                    .document(getCurrentUserId())
+                    .collection(LOANS_COLLECTION)
+                    .document(payment.loanId)
+                    .collection("payments")
+                    .document(payment.id)
+                    .set(payment)
+                    .await()
+                Timber.d("Ödeme durumu güncellendi: ${payment.id}")
+            } catch (e: Exception) {
+                Timber.e(e, "Ödeme durumu güncellenirken hata oluştu")
+                throw e
+            }
+        }
     }
 
     private fun getCurrentUserId(): String {

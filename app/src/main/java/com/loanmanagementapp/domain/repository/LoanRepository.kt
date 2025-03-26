@@ -1,6 +1,7 @@
 package com.loanmanagementapp.domain.repository
 import android.content.Context
 import com.loanmanagementapp.data.remote.model.Loan
+import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.core.type.LoanType
 
 /**
@@ -50,5 +51,25 @@ interface LoanRepository {
      * @param context Uygulama context'i
      * @return Pasif kredi listesi
      */
-    suspend fun getPassiveLoans(context: Context): List<Loan>
+    suspend fun getInactiveLoans(context: Context): List<Loan>
+    
+    /**
+     * Belirli bir kredinin ödeme planını Firestore'a kaydeder
+     * @param loanId Kredi ID'si
+     * @param payments Ödeme planı listesi
+     */
+    suspend fun savePayments(loanId: String, payments: List<Payment>)
+    
+    /**
+     * Belirli bir kredinin ödeme planını getirir
+     * @param loanId Kredi ID'si
+     * @return Ödeme planı listesi
+     */
+    suspend fun getPayments(loanId: String): List<Payment>
+    
+    /**
+     * Belirli bir ödemenin durumunu günceller
+     * @param payment Güncellenecek ödeme
+     */
+    suspend fun updatePaymentStatus(payment: Payment)
 }

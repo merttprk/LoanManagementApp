@@ -22,5 +22,5 @@ interface PaymentRepository {
      * @param context Uygulama context'i
      * @param payment Kaydedilecek ödeme
      */
-    suspend fun savePayment(context: Context, payment: Payment)
+    //suspend fun savePayment(context: Context, payment: Payment)
 }

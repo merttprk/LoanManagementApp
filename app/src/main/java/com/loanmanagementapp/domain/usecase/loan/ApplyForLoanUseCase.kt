@@ -3,9 +3,13 @@ package com.loanmanagementapp.domain.usecase.loan
 import android.content.Context
 import com.loanmanagementapp.core.type.LoanType
 import com.loanmanagementapp.data.remote.model.Loan
+import com.loanmanagementapp.data.remote.model.Payment
 import com.loanmanagementapp.domain.repository.LoanRepository
+import com.loanmanagementapp.util.DateUtil
 import java.util.Random
+import java.util.Calendar
 import javax.inject.Inject
+import kotlin.math.pow
 
 /**
  * Yeni kredi başvurusu yapan use case
@@ -48,10 +52,15 @@ class ApplyForLoanUseCase @Inject constructor(
         // 4 haneli rastgele bir sayı oluştur
         val random = Random()
         val randomNumber = 1000 + random.nextInt(9000) // 1000-9999 arası
+        val loanId = "L$randomNumber"
+        
+        // Aylık ödeme tutarını hesapla
+        val monthlyInterestRate = interestRate / 12 / 100 // Aylık faiz oranı
+        val monthlyPayment = calculateMonthlyPayment(principalAmount, monthlyInterestRate, finalTerm)
         
         // Yeni kredi oluştur
         val newLoan = Loan(
-            id = "L$randomNumber",
+            id = loanId,
             name = loanName,
             principalAmount = principalAmount,
             interestRate = interestRate,
@@ -60,15 +69,54 @@ class ApplyForLoanUseCase @Inject constructor(
             type = loanType
         )
         
-        // Mevcut kredileri getir
-        val currentLoans = loanRepository.updateLoans(context).toMutableList()
+        // Ödeme planını oluştur
+        val payments = createPaymentSchedule(loanId, monthlyPayment, finalTerm)
         
-        // Yeni krediyi ekle
+        // Mevcut kredileri getir ve yeni krediyi ekle
+        val currentLoans = loanRepository.updateLoans(context).toMutableList()
         currentLoans.add(newLoan)
         
-        // Güncellenmiş listeyi kaydet
+        // Güncellenmiş kredi listesini kaydet
         loanRepository.saveLoans(context, currentLoans)
         
+        // Ödeme planını Firestore'a kaydet
+        loanRepository.savePayments(loanId, payments)
+        
         return newLoan
+    }
+    
+    /**
+     * Aylık ödeme tutarını hesaplar
+     */
+    private fun calculateMonthlyPayment(principal: Double, monthlyRate: Double, termInMonths: Int): Double {
+        return principal * monthlyRate * (1 + monthlyRate).pow(termInMonths) / 
+               ((1 + monthlyRate).pow(termInMonths) - 1)
+    }
+    
+    /**
+     * Ödeme planını oluşturur
+     */
+    private fun createPaymentSchedule(loanId: String, monthlyPayment: Double, termInMonths: Int): List<Payment> {
+        val payments = mutableListOf<Payment>()
+        val calendar = Calendar.getInstance()
+        
+        // İlk ödeme tarihi bir ay sonrası
+        calendar.add(Calendar.MONTH, 1)
+        
+        for (month in 1..termInMonths) {
+            val payment = Payment(
+                id = "P${loanId}_$month",
+                loanId = loanId,
+                amount = monthlyPayment,
+                dueDate = calendar.time,
+                status = "pending"
+            )
+            payments.add(payment)
+            
+            // Sonraki ay
+            calendar.add(Calendar.MONTH, 1)
+        }
+        
+        return payments
     }
 }

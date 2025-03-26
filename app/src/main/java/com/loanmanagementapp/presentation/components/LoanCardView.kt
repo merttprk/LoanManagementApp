@@ -54,7 +54,7 @@ fun LoanCardView(
 ) {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("tr", "TR"))
     val statusColor = getStatusColor(loan.status)
-    val statusText = getStatusText(loan.status)
+    val statusText =getStatusText(loan.status)
     
     Card(
         modifier = modifier
