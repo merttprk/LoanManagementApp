@@ -19,16 +19,22 @@ class ApplyForLoanUseCase @Inject constructor(
      * @param loanName Kredi adı
      * @param principalAmount Ana para miktarı
      * @param loanType Kredi türü
+     * @param termInMonths Vade süresi (ay cinsinden)
      * @return Oluşturulan kredi nesnesi
      */
     suspend operator fun invoke(
         context: Context,
         loanName: String,
         principalAmount: Double,
-        loanType: LoanType
+        loanType: LoanType,
+        termInMonths: Int = 0
     ): Loan {
-        // Kredi türüne göre önerilen vade süresini al
-        val recommendedTerm = loanRepository.getRecommendedTerm(loanType)
+        // Kredi türüne göre önerilen vade süresini al (eğer kullanıcı bir vade seçmediyse)
+        val finalTerm = if (termInMonths > 0) {
+            termInMonths
+        } else {
+            loanRepository.getRecommendedTerm(loanType)
+        }
         
         // Kredi türüne göre faiz oranını belirle
         val interestRate = when (loanType) {
@@ -50,7 +56,7 @@ class ApplyForLoanUseCase @Inject constructor(
             principalAmount = principalAmount,
             interestRate = interestRate,
             status = "active",
-            dueIn = recommendedTerm * 30, // Ay cinsinden vadeyi gün cinsine çevir
+            dueIn = finalTerm * 30, // Ay cinsinden vadeyi gün cinsine çevir
             type = loanType
         )
         

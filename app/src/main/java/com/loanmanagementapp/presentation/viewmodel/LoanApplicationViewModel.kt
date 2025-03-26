@@ -35,12 +35,14 @@ class LoanApplicationViewModel @Inject constructor(
      * @param loanName Kredi adı
      * @param principalAmount Ana para miktarı
      * @param loanType Kredi türü
+     * @param termInMonths Vade süresi (ay cinsinden)
      */
     fun applyForLoan(
         context: Context,
         loanName: String,
         principalAmount: Double,
-        loanType: LoanType
+        loanType: LoanType,
+        termInMonths: Int = 0
     ) {
         viewModelScope.launch {
             try {
@@ -52,7 +54,8 @@ class LoanApplicationViewModel @Inject constructor(
                     context,
                     loanName,
                     principalAmount,
-                    loanType
+                    loanType,
+                    termInMonths
                 )
                 
                 // Başarılı sonuç
