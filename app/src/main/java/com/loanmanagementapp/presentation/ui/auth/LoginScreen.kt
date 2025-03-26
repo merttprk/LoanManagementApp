@@ -1,40 +1,15 @@
 package com.loanmanagementapp.presentation.ui.auth
 
-import android.content.res.Resources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -42,9 +17,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.wear.compose.material3.TextButtonDefaults
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.loanmanagementapp.R
 import com.loanmanagementapp.presentation.components.CustomEditText
 import com.loanmanagementapp.presentation.components.PrimaryButton
@@ -104,8 +76,8 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
-                painter = painterResource( R.drawable.ic_app_logo),
-                stringResource(R.string.app_name),
+                painter = painterResource(R.drawable.ic_app_logo),
+                contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.padding(bottom = 30.dp)
             )
 
@@ -113,9 +85,9 @@ fun LoginScreen(
                 CustomEditText(
                     value = username,
                     onValueChange = { username = it },
-                    label = "Username",
+                    label = "Kullanıcı Adı",
                     isError = username.isNotEmpty() && username.length < 3,
-                    errorText = "Username must be at least 3 characters",
+                    errorText = "Kullanıcı adı en az 3 karakter olmalıdır",
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
@@ -128,9 +100,9 @@ fun LoginScreen(
             CustomEditText(
                 value = email,
                 onValueChange = { email = it },
-                label = "Email",
+                label = "E-Posta",
                 isError = !isEmailValid,
-                errorText = "Please enter a valid email",
+                errorText = "Lütfen geçerli bir e-posta adresi girin",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
@@ -142,10 +114,10 @@ fun LoginScreen(
             CustomEditText(
                 value = password,
                 onValueChange = { password = it },
-                label = "Password",
+                label = "Şifre",
                 visualTransformation = PasswordVisualTransformation(),
                 isError = !isPasswordValid,
-                errorText = "Password must be at least 6 characters",
+                errorText = "Şifre en az 6 karakter olmalıdır",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
@@ -159,14 +131,18 @@ fun LoginScreen(
                     onClick = { /* Implement password reset */ },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Forgot Password?")
+                    Text(
+                        text = "Şifremi Unuttum",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             PrimaryButton(
-                text = if (isSignUp) "Sign Up" else "Login",
+                text = if (isSignUp) "Kayıt Ol" else "Giriş Yap",
                 onClick = {
                     if (isSignUp) {
                         viewModel.signup(username, email, password)
@@ -180,52 +156,31 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Divider(modifier = Modifier.weight(1f))
-                Text(
-                    text = "OR",
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Divider(modifier = Modifier.weight(1f))
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedButton(
-                onClick = {
-                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken("280085505226-jrf7q1605qcq7bdbbu5sojdubhjhua6o.apps.googleusercontent.com") // Replace with your web client ID
-                        .requestEmail()
-                        .build()
-
-                    val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                    // This would typically be handled in the Activity
-                    // For demonstration purposes only
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Continue with Google")
-            }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isSignUp) "Already have an account? " else "Don't have an account? "
+                    text = if (isSignUp) "Zaten hesabınız var mı? " else "Hesabınız yok mu? ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 TextButton(
-                    onClick = { isSignUp = !isSignUp }
+                    onClick = { isSignUp = !isSignUp },
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
                 ) {
-                    Text(if (isSignUp) "Login" else "Sign Up")
+                    Text(
+                        text = if (isSignUp) "Giriş Yap" else "Kayıt Ol",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    )
                 }
             }
         }
@@ -239,11 +194,19 @@ fun LoginScreen(
                 modifier = Modifier.padding(16.dp),
                 action = {
                     TextButton(onClick = { snackbarHostState.currentSnackbarData?.dismiss() }) {
-                        Text("Dismiss")
+                        Text(
+                            text = "Kapat",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
                     }
                 }
             ) {
-                Text(data.visuals.message)
+                Text(
+                    data.visuals.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
             }
         }
     }
