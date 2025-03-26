@@ -92,7 +92,7 @@ git clone https://github.com/username/LoanManagementApp.git
 ## Teknolojiler ve Kütüphaneler
 
 - **Dil**: Kotlin
-- **UI**: XML-based Views / Jetpack Compose
+- **UI**:Jetpack Compose
 - **Asenkron İşlemler**: Coroutines, Flow
 - **Bağımlılık Enjeksiyonu**: Hilt
 - **Veritabanı**: Room
