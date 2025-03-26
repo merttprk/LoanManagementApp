@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.loanmanagementapp.data.remote.model.Loan
 import com.loanmanagementapp.theme.Blue80
@@ -37,6 +38,12 @@ import java.util.Locale
  * @param showDetails Detayları gösterip göstermeme durumu
  * @param modifier Compose modifier
  */
+@Preview
+@Composable
+fun LoanCardPreview() {
+    LoanCardView(loan = Loan(name = "Personal Loan", principalAmount = 10000.0, interestRate = 5.0, status = "active", dueIn = 30, id = "123"))
+}
+
 @Composable
 fun LoanCardView(
     loan: Loan,

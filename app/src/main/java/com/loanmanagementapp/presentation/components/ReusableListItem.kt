@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.loanmanagementapp.theme.LightBlue80
 
@@ -28,6 +29,21 @@ import com.loanmanagementapp.theme.LightBlue80
  * @param contentColor İçerik metin rengi
  * @param onClick Tıklama işlevi
  */
+@Preview
+@Composable
+fun ReusableListItemPreview() {
+    ReusableListItem(
+        primaryText = "Primary Text",
+        secondaryText = "Secondary Text",
+        trailingText = "Trailing Text",
+        onClick = {},
+        backgroundColor = LightBlue80
+    )
+}
+
+
+
+
 @Composable
 fun ReusableListItem(
     primaryText: String,
