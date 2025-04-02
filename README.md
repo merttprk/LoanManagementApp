@@ -19,7 +19,7 @@ Bu uygulama, Clean Architecture ve MVVM (Model-View-ViewModel) prensiplerine gö
 ### 3. Veri Katmanı (Data Layer)
 - **Repository Implementations**: Domain katmanındaki arayüzlerin uygulamaları
 - **Data Sources**: Yerel veritabanı, API veya diğer veri kaynakları
-- **DTOs**: Veri transfer nesneleri
+
 
 ## Tasarım Desenleri
 
